@@ -2,9 +2,32 @@
 
 import simpy
 
+class Route(object):
+    """ Container object which describes a route """
+    def __init__(self, origin, terminal, steps):
+        self.origin = origin
+        self.terminal = terminal
+
+        self.stops = steps
+
+    def get_next(self, current):
+        """ get the next stop """
+        # Get the index, as stops must be unique
+        index = self.stops.index(current)
+
+        # If its the last stop, reverse, for now I guess
+        if index == len(self.stops) - 1:
+            self.stops = list(reversed(self.stops))
+            index = 0
+
+        # Go to the next one
+        index += 1
+ 
+        return self.stops[index]
+
 class Train(object):
     """ Basic train service object """
-    def __init__(self, location, network):
+    def __init__(self, location, network, route):
         # pointer to the object we live in
         self.network = network
 
@@ -14,6 +37,9 @@ class Train(object):
 
         # set the location
         self.location = location
+
+        # set the route
+        self.route = route
 
         # Start running the train
         self.run_line_action = self.network.env.process(self.run_line())
@@ -37,13 +63,8 @@ class Train(object):
             print("Train boarded %d at %d"%(boarding, self.location))
 
             # Drive to the next station
-            # XXX hard code for example, this should consult the line and graph accordingly
             src = self.location
-            if src == 1:
-                dst = 2
-            else:
-                dst = 1
-            # XXX XXX XXX
+            dst = self.route.get_next(src)
 
             distance = self.network.get_distance(src, dst)
             yield self.network.env.timeout(distance)

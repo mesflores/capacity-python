@@ -40,9 +40,9 @@ class TransitNetwork(object):
         """ Given two stations, connect them in the graph"""
         self._connect_graph.add_edge(source_id, dest_id, weight=weight)
 
-    def add_train(self, home_station_id):
+    def add_train(self, home_station_id, route):
         """ Create a new train """
-        new_train = train.Train(home_station_id, self)
+        new_train = train.Train(home_station_id, self, route)
 
         # Put the train in the list
         self.trains.append(new_train)
