@@ -11,6 +11,6 @@ setup(name='capacity',
         "simpy",
       ],
       entry_points = {
-                      'console_scripts': ['main=capacity.main:main'],
+                      'console_scripts': ['capacity=capacity.main:main'],
                      },
       )

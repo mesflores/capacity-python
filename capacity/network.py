@@ -23,6 +23,10 @@ class TransitNetwork(object):
         # The stations are stored as integers
         self._connect_graph = nx.DiGraph()
 
+    def read_gtfs(self, gtfs_file_dir):
+        """ Create a network with GTFS Data """
+        pass
+    
     def get_distance(self, src, dst):
         """ Look up the weight between two stations """
         return self._connect_graph.get_edge_data(src, dst)["weight"]

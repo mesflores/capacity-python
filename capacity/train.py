@@ -22,7 +22,7 @@ class Route(object):
 
         # Go to the next one
         index += 1
- 
+
         return self.stops[index]
 
 class Train(object):

@@ -1,12 +1,15 @@
 """Capacity -- A transit simulator I guess """
 
+import argparse
+
 import simpy
 
 import capacity.network as network
 import capacity.train as train
 
-def main():
-    """ main func"""
+
+def simple_system():
+    """ Create a simple system for debugging """
     # Make the simpy env
     env = simpy.Environment()
 
@@ -30,3 +33,35 @@ def main():
     system.add_train(1, route) #Starts at station 1
 
     env.run(until=20)
+
+def load_gtfs(gtfs_dir):
+    """ Create a network from GTFS data """
+    # Make the simpy
+    env = simpy.Environment() 
+
+    # Create the network
+    system = network.TransitNetwork(env)
+    
+    # Call the GTFS func
+    system.read_gtfs(gtfs_dir)
+
+    # XXX Do stuff?
+    raise NotImplementedError
+
+def main():
+    """ main func"""
+    parser = argparse.ArgumentParser(description="A transit simulator, I guess")
+
+    parser.add_argument("--simple", action="store_true",
+                        help="Run the simple example")
+    parser.add_argument("--load_gtfs", action="store", type=str,
+                        help="Run a system built from gtfs files")
+
+    args = parser.parse_args()
+
+    # Run the simple thing
+    if args.simple:
+        simple_system()
+    if args.load_gtfs:
+        load_gtfs(args.load_gtfs)
+
