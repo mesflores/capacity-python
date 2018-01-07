@@ -30,7 +30,7 @@ class TransitNetwork(object):
         """ Create a network with GTFS Data """
         # TODO: Set outputs from this...
         data = gtfs_reader.load_gtfs_data(gtfs_file_dir)
-        self.info = data["agency"].split["\n"][0]
+        self.info = data["agency"].split("\n")[0]
 
     def get_distance(self, src, dst):
         """ Look up the weight between two stations """

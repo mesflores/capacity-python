@@ -26,36 +26,39 @@ def read_gtfs_files(data_dir):
         with open(file_name) as gtfs_file_obj:
             # Just dump the whole thing into mem.
             # these might be kind of big in some cases...
-            gtfs_info[gtfs_file] = gtfs_file_obj.read()
+            gtfs_info[gtfs_file] = gtfs_file_obj.read().strip()
 
     return gtfs_info
 
-def parse_routes(raw_gtfs):
-    """ Dump the route stuff into a dictionary"""
-    route_info = {}
-
-    # Ok let's crack open each line
-    for index, line in enumerate(raw_gtfs["routes"].split("\n")):
-        # it's the header
+def parse_gtfs_file(raw_file, key_column):
+    """Parse a GTFS file, with key column being the unique key"""
+    parse_info = {}
+    # Spin through the lines
+    for index, line in enumerate(raw_file.split("\n")):
+        # If its the first one, learn the column positions
         if index == 0:
-            label_list = line.split(',')
-            continue
-        # Otherwise it's a data row
-        # Loop over the columns in that row
-        for c_index, data in enumerate(line.split(',')):
-            # if its the first column it's just the route id
-            if c_index == 0:
-                route_id = data
-                # Quick sanity check
-                if route_id in route_info:
-                    raise RuntimeError("Got a route ID we already had!")
-                # Make a dict
-                route_info[route_id] = {}
-                continue
-            # Stape it into our new dict
-            route_info[route_id][label_list[c_index]] = data
+            columns = line.split(",")
+            key_index = columns.index(key_column)
 
-    return route_info
+        # Otherwise it's a data row
+        # First, get the value from the key column...
+        split_row = line.split(',')
+        key_val = split_row[key_index]
+
+        # Make a new dict for this row
+        parse_info[key_val] = {}
+
+        # Ok now spin over the remaining values
+        for c_index, data in enumerate(split_row):
+            # Just skip over the key column
+            if c_index == key_index:
+                continue
+            # Get the name from the header
+            c_name = columns[c_index]
+            # Stick it in the appropriate dict with the column name
+            parse_info[key_val][c_name] = data
+
+    return parse_info
 
 def load_gtfs_data(data_dir):
     """Does all the heavy lifting returns everything in a nice dict"""
@@ -66,8 +69,7 @@ def load_gtfs_data(data_dir):
     # More or less, it will look something like this:
     # Trips-> turn into trains + routes
 
-    route_info = parse_routes(raw_data)
-
+    route_info = parse_gtfs_file(raw_data["routes"], "route_id")
     print(json.dumps(route_info, indent=4))
 
     return raw_data
