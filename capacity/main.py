@@ -37,11 +37,11 @@ def simple_system():
 def load_gtfs(gtfs_dir):
     """ Create a network from GTFS data """
     # Make the simpy
-    env = simpy.Environment() 
+    env = simpy.Environment()
 
     # Create the network
     system = network.TransitNetwork(env)
-    
+
     # Call the GTFS func
     system.read_gtfs(gtfs_dir)
 
@@ -64,4 +64,3 @@ def main():
         simple_system()
     if args.load_gtfs:
         load_gtfs(args.load_gtfs)
-

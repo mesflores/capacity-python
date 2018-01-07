@@ -2,6 +2,7 @@
 
 import networkx as nx
 
+import capacity.gtfs_reader as gtfs_reader
 import capacity.station as station
 import capacity.train as train
 
@@ -12,6 +13,8 @@ class TransitNetwork(object):
 
         # The process env for simpy
         self.env = env
+
+        self.info = ""
 
         # The stations in the network
         self.station_dict = {}
@@ -25,8 +28,10 @@ class TransitNetwork(object):
 
     def read_gtfs(self, gtfs_file_dir):
         """ Create a network with GTFS Data """
-        pass
-    
+        # TODO: Set outputs from this...
+        data = gtfs_reader.load_gtfs_data(gtfs_file_dir)
+        self.info = data["agency"].split["\n"][0]
+
     def get_distance(self, src, dst):
         """ Look up the weight between two stations """
         return self._connect_graph.get_edge_data(src, dst)["weight"]
