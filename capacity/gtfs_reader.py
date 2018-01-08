@@ -1,7 +1,6 @@
 """ Reads gtfs files and builds a network with them """
 
-import json
-import logging
+import datetime
 import os.path
 
 def read_gtfs_files(data_dir):
@@ -60,6 +59,99 @@ def parse_gtfs_file(raw_file, key_column):
 
     return parse_info
 
+def filter_stops(stop_info):
+    """ Filter for only type 0 stops, ie load/unload"""
+
+    new_stop_info = {}
+    for stop in stop_info:
+        if stop_info[stop]["location_type"] == "0":
+            new_stop_info[stop] = stop_info[stop]
+
+    return new_stop_info
+
+def load_stop_times(stop_times_raw):
+    """Load the stop times into a big dict"""
+    # NOTE: This is maybe possible with the above parsing function, but
+    # would be a little complicated since there is no key in the same way, and
+    # I just want the sequences to go in a list
+    stop_times = {}
+    # Spin through the lines
+    for index, line in enumerate(stop_times_raw.split("\n")):
+        # If its the first one, learn the column positions
+        if index == 0:
+            columns = line.split(",")
+            key_index = columns.index("trip_id")
+            continue
+        # Get the trip_id
+        data_row = line.split(",")
+        trip_id = data_row[key_index]
+
+        # did we have this?
+        if trip_id not in stop_times:
+            stop_times[trip_id] = []
+
+        # Make a dict for this one
+        trip_stop = {columns[x]: data for x, data in enumerate(data_row)}
+
+        # Type cleaning
+        trip_stop["stop_sequence"] = int(trip_stop["stop_sequence"])
+
+        # Add it to the list
+        stop_times[trip_id].append(trip_stop)
+
+    # Sort them all by sequence number. Probably we could do that at insert,
+    # but fuck it
+    for trip in stop_times:
+        stop_times[trip].sort(key=lambda x: x["stop_sequence"])
+
+    return stop_times
+
+def build_stop_adj_matrix(stop_times):
+    """Given a set of stop times, build an adjacencey matrix """
+
+    stop_adj = {}
+
+    for trip in stop_times:
+        curr_trip = stop_times[trip]
+        # Loop through the seq of stops
+        for index, stop in enumerate(curr_trip):
+            # If its the first one, just move on
+            if index == 0:
+                continue
+
+            # Where did I come from?
+            prev = curr_trip[index - 1]
+            prev_id = prev["stop_id"]
+
+            # Put it in adj matrix if needed
+            if prev_id not in stop_adj:
+                stop_adj[prev_id] = {}
+
+            # What's the time between the two?
+            # TODO Getting hacky with time, assuming no DST silly
+            depart_components = prev["departure_time"].split(":")
+            depart_components[0] = str(int(depart_components[0]) % 24)
+            depart_time = datetime.datetime.strptime(":".join(depart_components),
+                                                     "%H:%M:%S")
+            arrive_components = stop["arrival_time"].split(":")
+            arrive_components[0] = str(int(arrive_components[0]) % 24)
+            arrive_string = ":".join(arrive_components)
+            arrive_time = datetime.datetime.strptime(arrive_string,
+                                                     "%H:%M:%S")
+
+            # TODO: That mod to deal with day wrap around is real sketchy
+            weight = (arrive_time - depart_time).total_seconds() % 86400
+
+            # Save the minimum wieght in the matrix, ie the min time between stations
+            if stop["stop_id"] in stop_adj[prev_id]:
+                curr = stop_adj[prev_id][stop["stop_id"]]
+                weight = min(curr, weight)
+
+            # Stick it in the matrix
+            stop_adj[prev_id][stop["stop_id"]] = weight
+
+    return stop_adj
+
 def load_gtfs_data(data_dir):
     """Does all the heavy lifting returns everything in a nice dict"""
     raw_data = read_gtfs_files(data_dir)
@@ -70,6 +162,26 @@ def load_gtfs_data(data_dir):
     # Trips-> turn into trains + routes
 
     route_info = parse_gtfs_file(raw_data["routes"], "route_id")
-    print(json.dumps(route_info, indent=4))
 
-    return raw_data
+    # Load the set of stops
+    stop_info = parse_gtfs_file(raw_data["stops"], "stop_id")
+    # Filter for actual load/unload, remove entrances
+    stop_info = filter_stops(stop_info)
+
+    trip_info = parse_gtfs_file(raw_data["trips"], "trip_id")
+
+    stop_times = load_stop_times(raw_data["stop_times"])
+
+    #print(json.dumps(stop_times, indent=4))
+
+    adj_matrix = build_stop_adj_matrix(stop_times)
+
+    # Stick it all in a dict for now
+    gtfs_data = {}
+    gtfs_data["routes"] = route_info
+    gtfs_data["stops"] = stop_info
+    gtfs_data["trip_info"] = trip_info
+    gtfs_data["stop_times"] = stop_times
+    gtfs_data["adj_matrix"] = adj_matrix
+
+    return gtfs_data
