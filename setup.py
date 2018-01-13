@@ -9,6 +9,7 @@ setup(name='capacity',
       install_requires=[
         "networkx",
         "simpy",
+        "matplotlib",
       ],
       entry_points = {
                       'console_scripts': ['capacity=capacity.main:main'],

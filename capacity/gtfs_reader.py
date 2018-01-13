@@ -156,7 +156,7 @@ def load_gtfs_data(data_dir):
     """Does all the heavy lifting returns everything in a nice dict"""
     raw_data = read_gtfs_files(data_dir)
 
-    print(raw_data["agency"])
+    agency_info = parse_gtfs_file(raw_data["agency"], "agency_id")
 
     # More or less, it will look something like this:
     # Trips-> turn into trains + routes
@@ -178,6 +178,8 @@ def load_gtfs_data(data_dir):
 
     # Stick it all in a dict for now
     gtfs_data = {}
+
+    gtfs_data["agency"] = agency_info
     gtfs_data["routes"] = route_info
     gtfs_data["stops"] = stop_info
     gtfs_data["trip_info"] = trip_info

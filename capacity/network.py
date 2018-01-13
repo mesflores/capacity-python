@@ -1,10 +1,13 @@
 """ The master network object """
 
+import logging
+
 import networkx as nx
 
 import capacity.gtfs_reader as gtfs_reader
 import capacity.station as station
 import capacity.train as train
+import capacity.utils as utils
 
 class TransitNetwork(object):
     """ The master container class for the transit network object """
@@ -30,7 +33,37 @@ class TransitNetwork(object):
         """ Create a network with GTFS Data """
         # TODO: Set outputs from this...
         data = gtfs_reader.load_gtfs_data(gtfs_file_dir)
-        self.info = data["agency"].split("\n")[0]
+
+        # load all the stops
+        for stop in data["stops"]:
+            curr_stop = data["stops"][stop]
+            self.add_station(stop, curr_stop["stop_name"])
+            # Set position with shitty mapping
+            xy_pos = utils.map_to_cartesian(curr_stop["stop_lat"],
+                                            curr_stop["stop_lon"])
+            self.station_dict[stop].set_pos(xy_pos)
+
+        # Spin through the adj_matrix and add all the links
+        for src in data["adj_matrix"]:
+            for dst in data["adj_matrix"][src]:
+                weight = data["adj_matrix"][src][dst]
+                self.connect_station_pair(src, dst, weight)
+
+    def draw_network(self):
+        """ Draw the network for LOOKING"""
+        # Make a dir of the positoons
+
+        pos_dir = {}
+        name_dir = {}
+        for stop in self.station_dict:
+            curr_stop = self.station_dict[stop]
+            pos_dir[stop] = curr_stop.pos
+            name_dir[stop] = curr_stop.name
+
+
+
+        nx.draw(self._connect_graph, pos=pos_dir, with_labels=True,
+                labels=name_dir)
 
     def get_distance(self, src, dst):
         """ Look up the weight between two stations """

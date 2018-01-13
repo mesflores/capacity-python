@@ -4,6 +4,8 @@ import argparse
 
 import simpy
 
+from matplotlib import pyplot as plt
+
 import capacity.network as network
 import capacity.train as train
 
@@ -45,8 +47,11 @@ def load_gtfs(gtfs_dir):
     # Call the GTFS func
     system.read_gtfs(gtfs_dir)
 
-    # XXX Do stuff?
-    raise NotImplementedError
+    #env.run(until=20)
+
+    system.draw_network()
+    #plt.draw()
+    plt.show()
 
 def main():
     """ main func"""

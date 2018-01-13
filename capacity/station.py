@@ -27,6 +27,13 @@ class Station(object):
             print("Load at %s is %d"%(self.name, self.load.level))
             yield self.network.env.timeout(2)
 
+    def set_pos(self, lat, lon):
+        """ Set the physical location of the station """
+        self.pos = (lat, lon)
+    def set_pos(self, pos):
+        """ Set position with tuple"""
+        self.pos = pos
+
     def print_load(self):
         """ Output the load"""
         print(self.load)
