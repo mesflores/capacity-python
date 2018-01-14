@@ -1,6 +1,8 @@
 """ Reads gtfs files and builds a network with them """
 
+import csv
 import datetime
+import logging
 import os.path
 
 def read_gtfs_files(data_dir):
@@ -32,31 +34,16 @@ def read_gtfs_files(data_dir):
 def parse_gtfs_file(raw_file, key_column):
     """Parse a GTFS file, with key column being the unique key"""
     parse_info = {}
-    # Spin through the lines
-    for index, line in enumerate(raw_file.split("\n")):
-        # If its the first one, learn the column positions
-        if index == 0:
-            columns = line.split(",")
-            key_index = columns.index(key_column)
 
-        # Otherwise it's a data row
-        # First, get the value from the key column...
-        split_row = line.split(',')
-        key_val = split_row[key_index]
-
-        # Make a new dict for this row
+    reader = csv.DictReader(raw_file.splitlines())
+    for row in reader:
+        # Get the key value
+        key_val = row[key_column]
         parse_info[key_val] = {}
 
-        # Ok now spin over the remaining values
-        for c_index, data in enumerate(split_row):
-            # Just skip over the key column
-            if c_index == key_index:
-                continue
-            # Get the name from the header
-            c_name = columns[c_index]
-            # Stick it in the appropriate dict with the column name
-            parse_info[key_val][c_name] = data
-
+        # Loop through the rest
+        for row_key in row:
+            parse_info[key_val][row_key] = row[row_key]
     return parse_info
 
 def filter_stops(stop_info):
@@ -154,26 +141,34 @@ def build_stop_adj_matrix(stop_times):
 
 def load_gtfs_data(data_dir):
     """Does all the heavy lifting returns everything in a nice dict"""
+    logging.info("Loading GTFS files...")
     raw_data = read_gtfs_files(data_dir)
 
-    agency_info = parse_gtfs_file(raw_data["agency"], "agency_id")
+    logging.info("Parsing Agency...")
+    #agency_info = parse_gtfs_file(raw_data["agency"], "agency_id")
+    agency_info = parse_gtfs_file(raw_data["agency"], "agency_name")
 
     # More or less, it will look something like this:
     # Trips-> turn into trains + routes
 
+    logging.info("Parsing Routes...")
     route_info = parse_gtfs_file(raw_data["routes"], "route_id")
 
     # Load the set of stops
+    logging.info("Parsing Stops...")
     stop_info = parse_gtfs_file(raw_data["stops"], "stop_id")
     # Filter for actual load/unload, remove entrances
     stop_info = filter_stops(stop_info)
 
+    logging.info("Parsing Trips...")
     trip_info = parse_gtfs_file(raw_data["trips"], "trip_id")
 
+    logging.info("Parsing Stop Times...")
     stop_times = load_stop_times(raw_data["stop_times"])
 
     #print(json.dumps(stop_times, indent=4))
 
+    logging.info("Building minimum adjacencey matrix...")
     adj_matrix = build_stop_adj_matrix(stop_times)
 
     # Stick it all in a dict for now
