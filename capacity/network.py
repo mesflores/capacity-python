@@ -34,6 +34,7 @@ class TransitNetwork(object):
         # TODO: Set outputs from this...
         data = gtfs_reader.load_gtfs_data(gtfs_file_dir)
 
+        logging.info("Creating stations...")
         # load all the stops
         for stop in data["stops"]:
             curr_stop = data["stops"][stop]
@@ -43,6 +44,7 @@ class TransitNetwork(object):
                                             curr_stop["stop_lon"])
             self.station_dict[stop].set_pos(xy_pos)
 
+        logging.info("Connecting stations...")
         # Spin through the adj_matrix and add all the links
         for src in data["adj_matrix"]:
             for dst in data["adj_matrix"][src]:
@@ -52,6 +54,8 @@ class TransitNetwork(object):
     def draw_network(self):
         """ Draw the network for LOOKING"""
         # Make a dir of the positoons
+
+        logging.info("Drawing network...")
 
         pos_dir = {}
         name_dir = {}
@@ -63,7 +67,10 @@ class TransitNetwork(object):
 
 
         nx.draw(self._connect_graph, pos=pos_dir, with_labels=True,
-                labels=name_dir)
+                labels=name_dir,
+                font_size=8,
+                node_size=100,
+                )
 
     def get_distance(self, src, dst):
         """ Look up the weight between two stations """
@@ -71,6 +78,11 @@ class TransitNetwork(object):
 
     def add_station(self, station_id, name):
         """ Add a new station """
+        # Adjsut the name
+        if name.endswith("Station"):
+            # Chop off the "station"
+            name = name[:-8]
+
         # Create the object
         new_station = station.Station(station_id, name, self)
         # stick it in the dict

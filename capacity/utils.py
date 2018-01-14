@@ -11,8 +11,8 @@ def map_to_cartesian(lat, lon):
         lon = float(lon)
 
     # Do mercator stuff
-    map_width = 200
-    map_height = 100
+    map_width = 400
+    map_height = 200
 
     x_coord = (lon + 180.0) * (map_width/360.0)
     lat_rad = lat * (math.pi / 180.0)

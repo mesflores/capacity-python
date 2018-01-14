@@ -1,6 +1,7 @@
 """Capacity -- A transit simulator I guess """
 
 import argparse
+import logging
 
 import simpy
 
@@ -63,6 +64,11 @@ def main():
                         help="Run a system built from gtfs files")
 
     args = parser.parse_args()
+
+    # Config logging
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
+    logging.info("Starting...")
 
     # Run the simple thing
     if args.simple:
