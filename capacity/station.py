@@ -24,7 +24,7 @@ class Station(object):
         while True:
             self.load.put(1)
             # How often to generate load?
-            print("Load at %s is %d"%(self.name, self.load.level))
+            #print("Load at %s is %d"%(self.name, self.load.level))
             yield self.network.env.timeout(2)
 
     def set_pos(self, lat, lon):

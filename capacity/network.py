@@ -64,13 +64,15 @@ class TransitNetwork(object):
             pos_dir[stop] = curr_stop.pos
             name_dir[stop] = curr_stop.name
 
-
-
         nx.draw(self._connect_graph, pos=pos_dir, with_labels=True,
                 labels=name_dir,
                 font_size=8,
                 node_size=100,
                 )
+
+    def get_name(self, station_id):
+        """ Return the string name of a station"""
+        return self.station_dict[station_id].name
 
     def get_distance(self, src, dst):
         """ Look up the weight between two stations """
@@ -94,9 +96,12 @@ class TransitNetwork(object):
         """ Given two stations, connect them in the graph"""
         self._connect_graph.add_edge(source_id, dest_id, weight=weight)
 
-    def add_train(self, home_station_id, route):
+    def add_train(self, home_station_id, route, train_type=None):
         """ Create a new train """
-        new_train = train.Train(home_station_id, self, route)
+        if train_type == None:
+            new_train = train.Train(home_station_id, self, route)
+        else:
+            new_train = train_type(home_station_id, self, route, 3)
 
         # Put the train in the list
         self.trains.append(new_train)

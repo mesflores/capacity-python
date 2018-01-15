@@ -48,11 +48,19 @@ def load_gtfs(gtfs_dir):
     # Call the GTFS func
     system.read_gtfs(gtfs_dir)
 
-    #env.run(until=20)
+    # Let's make a route
+    stop_list = ["80122", "80121", "80123", "80124", "80125", "80126", "80127",
+                 "80128", "80129", "80130", "80131", "80132", "80133", "80134",
+                 "80135", "80136", "80137", "80138",
+                 "80139"]
+    route = train.Route("80122", "80139", stop_list)
 
-    system.draw_network()
-    #plt.draw()
-    plt.show()
+    system.add_train("80122", route, train.KS_P3010)
+
+    env.run(until=7200)
+
+    #system.draw_network()
+    #plt.show()
 
 def main():
     """ main func"""

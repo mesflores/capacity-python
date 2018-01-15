@@ -1,5 +1,6 @@
 """Train object """
 
+import logging
 import simpy
 
 class Route(object):
@@ -32,7 +33,6 @@ class Train(object):
         self.network = network
 
         # Usage and cap info
-        self.capacity = 4
         self.riders = simpy.Container(self.network.env, self.capacity, 0)
 
         # set the location
@@ -60,7 +60,9 @@ class Train(object):
             curr_station.load.get(boarding)
             self.riders.put(boarding)
 
-            print("Train boarded %d at %d"%(boarding, self.location))
+            logging.info("[%d] Train boarded %d at %s",
+                         self.network.env.now,
+                         boarding, self.network.get_name(self.location))
 
             # Drive to the next station
             src = self.location
@@ -70,8 +72,23 @@ class Train(object):
             yield self.network.env.timeout(distance)
             self.location = dst
 
-            print("Train emptied %d at %d"%(self.riders.level, self.location))
+            logging.info("[%d] Train emptied %d at %s",
+                         self.network.env.now,
+                         self.riders.level,
+                         self.network.get_name(self.location))
             # Drop passangers off. Assumes every one wants off here...
             self.riders.get(self.riders.level)
 
             # Repeat...
+
+class KS_P3010(Train):
+    """ A KinkiSharyo P 3010 """
+    def __init__(self, location, network, route, cars):
+        # Set the capacity accordingly
+        self.capacity = 68 * cars #NOTE: Assume 3 cars for now
+
+        # super
+        super().__init__(location, network, route)
+
+
+
