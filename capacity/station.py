@@ -2,6 +2,8 @@
 
 import simpy
 
+import capacity.utils as utils
+
 class Station(object):
     """basic Station object """
     def __init__(self, station_id, name, network):
@@ -16,6 +18,13 @@ class Station(object):
         # Stations start at 0 load
         self.load = simpy.Container(self.network.env, init=0)
 
+        # Popularity
+        self.out_popularity = 20 # Likelihood of stopping here
+        self.in_popularity = 100 # Arrivals
+
+        # Placeholder position
+        self.pos = None
+
         # Go ahead and start their action proccesses
         self.gen_load_action = self.network.env.process(self.gen_load())
 
@@ -23,13 +32,11 @@ class Station(object):
         """ Add incoming load"""
         while True:
             self.load.put(1)
-            # How often to generate load?
-            #print("Load at %s is %d"%(self.name, self.load.level))
-            yield self.network.env.timeout(2)
+            # Generate load based on poisson arrivals
+            #TODO: I dunno pick a better one
+            gap = int(utils.poisson_arrival(self.in_popularity))
+            yield self.network.env.timeout(gap)
 
-    def set_pos(self, lat, lon):
-        """ Set the physical location of the station """
-        self.pos = (lat, lon)
     def set_pos(self, pos):
         """ Set position with tuple"""
         self.pos = pos

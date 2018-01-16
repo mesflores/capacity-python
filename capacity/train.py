@@ -1,6 +1,8 @@
 """Train object """
 
 import logging
+
+import numpy as np
 import simpy
 
 class Route(object):
@@ -57,8 +59,12 @@ class Train(object):
             curr_station = self.network.station_dict[self.location]
             boarding = min(curr_station.load.level, self.capacity - self.riders.level)
             # Board the train
-            curr_station.load.get(boarding)
-            self.riders.put(boarding)
+            if boarding > 0:
+                curr_station.load.get(boarding)
+                self.riders.put(boarding)
+
+                # Log increases
+                self.network.stats.log_boarding(self.location, boarding)
 
             logging.info("[%d] Train boarded %d at %s",
                          self.network.env.now,
@@ -70,16 +76,31 @@ class Train(object):
 
             distance = self.network.get_distance(src, dst)
             yield self.network.env.timeout(distance)
+
             self.location = dst
 
             logging.info("[%d] Train emptied %d at %s",
                          self.network.env.now,
                          self.riders.level,
                          self.network.get_name(self.location))
-            # Drop passangers off. Assumes every one wants off here...
-            self.riders.get(self.riders.level)
+            # Drop passangers off.
+            drop_count = min(self.riders.level, self.sample_departures(self.location))
+            if drop_count > 0:
+                self.riders.get(drop_count)
 
             # Repeat...
+
+    def sample_departures(self, dst):
+        """ Figure out how many people get off here """
+        # What's the stations out_pop?
+        out_pop = self.network.station_dict[dst].out_popularity
+
+        # TODO: pick something real
+        depart = np.random.zipf(1+float(out_pop)/100)
+
+        return depart
+
+
 
 class KS_P3010(Train):
     """ A KinkiSharyo P 3010 """
@@ -89,6 +110,3 @@ class KS_P3010(Train):
 
         # super
         super().__init__(location, network, route)
-
-
-

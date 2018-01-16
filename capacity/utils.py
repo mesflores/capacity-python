@@ -2,6 +2,8 @@
 
 import math
 
+import numpy as np
+
 def map_to_cartesian(lat, lon):
     """gross mapping to cartesian plane"""
     # Make everything a float so you dont have to worry about it
@@ -22,3 +24,7 @@ def map_to_cartesian(lat, lon):
     y_coord = y_coord * -1
 
     return (x_coord, y_coord)
+
+def poisson_arrival(scale):
+    """ Pull from exp to see next arrival time """
+    return np.random.exponential(scale=scale)

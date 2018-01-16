@@ -6,12 +6,13 @@ import networkx as nx
 
 import capacity.gtfs_reader as gtfs_reader
 import capacity.station as station
+import capacity.stats as stats
 import capacity.train as train
 import capacity.utils as utils
 
 class TransitNetwork(object):
     """ The master container class for the transit network object """
-    def __init__(self, env):
+    def __init__(self, env, output_file):
         """Creat the graph object initstations and add them """
 
         # The process env for simpy
@@ -25,9 +26,16 @@ class TransitNetwork(object):
         # Trains in the network
         self.trains = []
 
+        # Create and init a stats object
+        self.stats = stats.NetworkStats()
+        self.stats.init_output(output_file)
+        # Fire off the stats loop
+        self.stats_action = self.env.process(self.stats.periodic_output(env, station_filter="801"))
+
         # The graph that describes connections between stations
         # The stations are stored as integers
         self._connect_graph = nx.DiGraph()
+
 
     def read_gtfs(self, gtfs_file_dir):
         """ Create a network with GTFS Data """
@@ -68,7 +76,7 @@ class TransitNetwork(object):
                 labels=name_dir,
                 font_size=8,
                 node_size=100,
-                )
+               )
 
     def get_name(self, station_id):
         """ Return the string name of a station"""
@@ -91,6 +99,8 @@ class TransitNetwork(object):
         self.station_dict[station_id] = new_station
         # Add it to the graph
         self._connect_graph.add_node(station_id)
+        # Add it to the stats
+        self.stats.add_station(station_id)
 
     def connect_station_pair(self, source_id, dest_id, weight):
         """ Given two stations, connect them in the graph"""
@@ -98,7 +108,7 @@ class TransitNetwork(object):
 
     def add_train(self, home_station_id, route, train_type=None):
         """ Create a new train """
-        if train_type == None:
+        if train_type is None:
             new_train = train.Train(home_station_id, self, route)
         else:
             new_train = train_type(home_station_id, self, route, 3)
