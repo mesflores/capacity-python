@@ -100,8 +100,6 @@ class Train(object):
 
         return depart
 
-
-
 class KS_P3010(Train):
     """ A KinkiSharyo P 3010 """
     def __init__(self, location, network, route, cars):

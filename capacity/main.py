@@ -59,7 +59,8 @@ def load_gtfs(gtfs_dir, output_file):
     system.add_train("80122", route, train.KS_P3010)
 
     # Run for a little while
-    env.run(until=86400)
+    #env.run(until=86400)
+    env.run()
 
     #system.draw_network()
     #plt.show()
@@ -79,7 +80,7 @@ def main():
     args = parser.parse_args()
 
     # Config logging
-    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.WARN)
 
     logging.info("Starting...")
 
