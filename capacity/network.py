@@ -115,3 +115,10 @@ class TransitNetwork(object):
 
         # Put the train in the list
         self.trains.append(new_train)
+
+    def determine_route(self, start, destination):
+        """ Determine the shortest path from start to destination, return a list of all the hops"""
+        path = nx.shortest_path(source=start, target=destination, weight="weight")
+
+        return path
+

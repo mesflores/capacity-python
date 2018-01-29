@@ -60,10 +60,10 @@ def load_gtfs(gtfs_dir, output_file):
 
     # Run for a little while
     #env.run(until=86400)
-    env.run()
+    #env.run()
 
-    #system.draw_network()
-    #plt.show()
+    system.draw_network()
+    plt.show()
 
 def main():
     """ main func"""
@@ -80,7 +80,7 @@ def main():
     args = parser.parse_args()
 
     # Config logging
-    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.WARN)
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
     logging.info("Starting...")
 

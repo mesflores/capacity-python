@@ -2,6 +2,7 @@
 
 import simpy
 
+import capacity.traveler as traveler
 import capacity.utils as utils
 
 class Station(object):
@@ -15,8 +16,8 @@ class Station(object):
         self.station_id = station_id
         self.name = name
 
-        # Stations start at 0 load
-        self.load = simpy.Container(self.network.env, init=0)
+        # Stations have infinite capacity. Fine for now...
+        self.passenger_load = simpy.FilterStore(self.network.env)
 
         # Popularity
         self.out_popularity = 20 # Likelihood of stopping here
@@ -31,7 +32,11 @@ class Station(object):
     def gen_load(self):
         """ Add incoming load"""
         while True:
-            self.load.put(1)
+            # Generate a new passenger
+            new_pass = traveler.Passenger(self.station_id, self.network)
+            # Put them into the local store
+            self.passenger_load.put(new_pass)
+
             # Generate load based on poisson arrivals
             #TODO: I dunno pick a better one
             gap = int(utils.poisson_arrival(self.in_popularity))
