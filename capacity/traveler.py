@@ -1,5 +1,7 @@
 """Traveler.py -- the basic traveler class"""
 
+import logging
+
 class Passenger(object):
     """Traveler on the system """
     def __init__(self, start, network):
@@ -21,13 +23,15 @@ class Passenger(object):
         # Pick a route there
         self._route_to_dest()
 
+        logging.info("[%d] person at %s going to %s",
+                      network.env.now, self.start, self.dest)
 
     def _select_destination(self):
         """Determine where the passenget should go """
         # Ideally this should do something clever based on the start location
         # ie known trips. But for now, it will pick randomly!
 
-        self.dest = 80122 # 7mc on the expo
+        self.dest = 1 
 
    
     def _route_to_dest(self):
@@ -41,3 +45,7 @@ class Passenger(object):
         """ Where is next? """
         return self.route[self.route_index + 1]
 
+    def arrived(self):
+        """ If you arrive at destination, log info"""
+        #TODO: Collect final stats
+        pass

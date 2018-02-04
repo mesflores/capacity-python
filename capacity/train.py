@@ -19,14 +19,32 @@ class Route(object):
         index = self.stops.index(current)
 
         # If its the last stop, reverse, for now I guess
-        if index == len(self.stops) - 1:
-            self.stops = list(reversed(self.stops))
-            index = 0
+        #if index + 1 == len(self.stops) - 1:
+        #    print("Reversing route...")
+        #    self.stops = list(reversed(self.stops))
+        #    index = 0
 
         # Go to the next one
         index += 1
 
         return self.stops[index]
+
+    def check_route(self, current):
+        """ If you're at the end of the line, flip it"""
+
+        if current == self.stops[-1]:
+            self.stops = list(reversed(self.stops))
+
+    def get_next(self, current):
+        """Return the next stop, but dont change anything"""
+        index = self.stops.index(current)
+        # If its the end of the line
+        if index == len(self.stops) - 1:
+            # Next is none, so...
+            return None
+
+        # Otherwise, spit it out
+        return self.stops[index + 1]
 
 class Train(object):
     """ Basic train service object """
@@ -36,7 +54,8 @@ class Train(object):
 
         # Usage and cap info
         #self.riders = simpy.Container(self.network.env, self.capacity, 0)
-        self.riders = simpy.FilterStore(self.network.env, self.capacity)
+        #self.riders = simpy.FilterStore(self.network.env, self.capacity)
+        self.riders = []
 
         # set the location
         self.location = location
@@ -47,10 +66,12 @@ class Train(object):
         # Start running the train
         self.run_line_action = self.network.env.process(self.run_line())
 
+        if not hasattr(self, "capacity"):
+            self.capacity=10
+
     def get_next_stop(self):
         """Where is this train headed to next? """
-        # TODO Write this...
-        raise NotImplementedError
+        return self.route.get_next(self.location)
 
     def output_riders(self):
         """This function just prints the current riders"""
@@ -63,11 +84,17 @@ class Train(object):
         # Here, we should check to see if the next stop for the train is the
         # next stop for the passanger
 
-        # Where do they want to be next?
-        next_route_stop = rider.get_next_stop()
-
         # Where is the train going next?
         next_train_stop = self.get_next_stop()
+        
+        # If this train is at the last stop, no boarding
+        if next_train_stop == None:
+            print("Not boarding because last stop!")
+            return False
+
+
+        # Where do they want to be next?
+        next_route_stop = rider.get_next_stop()
 
         # This train will take you closer!
         # TODO: Someday in the future this should have the riders pick routes and just use those
@@ -78,44 +105,81 @@ class Train(object):
         # This train wont!
         return False
 
+    def should_alight(self, rider):
+        """Should the rider get off here?"""
+        
+        # Are we there?
+        if rider.dest == self.location:
+            return True
+
+        # TODO: Implement transfers
+        return False
+
     def run_line(self):
         """Run line as dictated by the network """
 
         # Run Forever right now
         while True:
+            print ("Starting boarding at %s"%(self.location))
             # Collect as many passangers as you can from a location
             curr_station = self.network.station_dict[self.location]
-            boarding = min(curr_station.load.level, self.capacity - self.riders.level)
-            # Board the train
-            if boarding > 0:
-                curr_station.load.get(boarding)
-                self.riders.put(boarding)
 
-                # Log increases
-                self.network.stats.log_boarding(self.location, boarding)
+            # Take everybody here that needs to get on
+            boarding = []
+            for passanger in curr_station.passanger_load:
+                # SHould they get on this train?
+                if self.should_board(passanger):
+                    # Is there room?
+                    room = self.capacity - len(self.riders)
+                    # The train is full
+                    if room == 0:
+                        logging.info("[%d] Train full at %s",
+                                     self.network.env.now,
+                                     self.location)
+                        break 
+                    # Get on the train
+                    boarding.append(passanger)
+            # Remove from station...
+            for passanger in boarding:
+                curr_station.passanger_load.remove(passanger)
+                self.riders.append(passanger)
+
+            # Log increases
+            self.network.stats.log_boarding(self.location, len(boarding))
 
             logging.info("[%d] Train boarded %d at %s",
                          self.network.env.now,
-                         boarding, self.network.get_name(self.location))
+                         len(boarding), self.network.get_name(self.location))
 
             # Drive to the next station
             src = self.location
             dst = self.route.goto_next(src)
 
+            # Pay the appropriate time penalty...
             distance = self.network.get_distance(src, dst)
             yield self.network.env.timeout(distance)
 
             self.location = dst
+ 
+            # ARRIVE AT NEW STATION
+            # Figure out who should get off here
+            exiting = []
+            for rider in self.riders:
+                # Check if they should 
+                if self.should_alight(rider):
+                    exiting.append(rider)
+
+            # Remove them all from the train 
+            for rider in exiting:
+                self.riders.remove(rider)
 
             logging.info("[%d] Train emptied %d at %s",
                          self.network.env.now,
-                         self.riders.level,
+                         len(exiting),
                          self.network.get_name(self.location))
-            # Drop passangers off.
-            drop_count = min(self.riders.level, self.sample_departures(self.location))
-            if drop_count > 0:
-                self.riders.get(drop_count)
 
+            # Reverse the route if needed
+            self.route.check_route(self.location)
             # Repeat...
 
     def sample_departures(self, dst):

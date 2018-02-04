@@ -17,7 +17,8 @@ class Station(object):
         self.name = name
 
         # Stations have infinite capacity. Fine for now...
-        self.passenger_load = simpy.FilterStore(self.network.env)
+        #self.passenger_load = simpy.FilterStore(self.network.env)
+        self.passanger_load = []   
 
         # Popularity
         self.out_popularity = 20 # Likelihood of stopping here
@@ -34,8 +35,11 @@ class Station(object):
         while True:
             # Generate a new passenger
             new_pass = traveler.Passenger(self.station_id, self.network)
-            # Put them into the local store
-            self.passenger_load.put(new_pass)
+
+            if new_pass.dest != self.station_id:
+                # Put them into the local store
+                #self.passenger_load.put(new_pass)
+                self.passanger_load.append(new_pass)
 
             # Generate load based on poisson arrivals
             #TODO: I dunno pick a better one

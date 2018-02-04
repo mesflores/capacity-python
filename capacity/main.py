@@ -35,7 +35,7 @@ def simple_system():
     # Make a train
     system.add_train(1, route) #Starts at station 1
 
-    env.run(until=20)
+    run_system(env, system)
 
 def load_gtfs(gtfs_dir, output_file):
     """ Create a network from GTFS data """
@@ -58,12 +58,17 @@ def load_gtfs(gtfs_dir, output_file):
     # Add that route to a KS P3010
     system.add_train("80122", route, train.KS_P3010)
 
-    # Run for a little while
-    #env.run(until=86400)
-    #env.run()
+    run_system(env, system)
 
-    system.draw_network()
-    plt.show()
+def run_system(env, system):
+    """Actually run the whole thing """
+
+
+    # Run for a little while
+    env.run(until=20)
+
+    #system.draw_network()
+    #plt.show()
 
 def main():
     """ main func"""

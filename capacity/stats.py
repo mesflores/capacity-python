@@ -67,7 +67,7 @@ class NetworkStats(object):
             # Dump each station
             for station in self.station_boardings:
                 # Did  wed get a filter?
-                if station_filter and station_filter not in station:
+                if station_filter and station_filter not in str(station):
                     continue
                 out_f.write("\t%s\t\t%d\n"%(station,
                                             self.station_boardings[station]))
