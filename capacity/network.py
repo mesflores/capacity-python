@@ -30,7 +30,7 @@ class TransitNetwork(object):
         self.stats = stats.NetworkStats()
         self.stats.init_output(output_file)
         # Fire off the stats loop
-        self.stats_action = self.env.process(self.stats.periodic_output(env, station_filter="801"))
+        self.stats_action = self.env.process(self.stats.periodic_output(env))
 
         # The graph that describes connections between stations
         # The stations are stored as integers

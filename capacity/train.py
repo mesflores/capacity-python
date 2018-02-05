@@ -120,7 +120,6 @@ class Train(object):
 
         # Run Forever right now
         while True:
-            print ("Starting boarding at %s"%(self.location))
             # Collect as many passangers as you can from a location
             curr_station = self.network.station_dict[self.location]
 
