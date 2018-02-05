@@ -11,13 +11,13 @@ import capacity.network as network
 import capacity.train as train
 
 
-def simple_system():
+def simple_system(output_file):
     """ Create a simple system for debugging """
     # Make the simpy env
     env = simpy.Environment()
 
     # Create the the network object
-    system = network.TransitNetwork(env, "test.out")
+    system = network.TransitNetwork(env, output_file)
     # Add two stations
     system.add_station(1, "A")
     system.add_station(2, "B")
@@ -35,7 +35,7 @@ def simple_system():
     # Make a train
     system.add_train(1, route) #Starts at station 1
 
-    run_system(env, system)
+    return (env, system)
 
 def load_gtfs(gtfs_dir, output_file):
     """ Create a network from GTFS data """
@@ -58,14 +58,14 @@ def load_gtfs(gtfs_dir, output_file):
     # Add that route to a KS P3010
     system.add_train("80122", route, train.KS_P3010)
 
-    run_system(env, system)
+    return (env, system)
 
-def run_system(env, system):
+def run_system(env, system, until=100):
     """Actually run the whole thing """
 
 
     # Run for a little while
-    env.run(until=20)
+    env.run(until=until)
 
     #system.draw_network()
     #plt.show()
@@ -74,10 +74,16 @@ def main():
     """ main func"""
     parser = argparse.ArgumentParser(description="A transit simulator, I guess")
 
+    # Run the simple test, or use GTFS data?
     parser.add_argument("--simple", action="store_true",
                         help="Run the simple example")
     parser.add_argument("--load_gtfs", action="store", type=str,
                         help="Run a system built from gtfs files")
+    # Some parameters for the run
+    parser.add_argument("--until", action="store", type=int,
+                        default="100",
+                        help="How long (min) to run the simulation for")
+    # Log file location
     parser.add_argument("--output_file", action="store", type=str,
                         default="capacity.log",
                         help="Location of output file")
@@ -91,6 +97,9 @@ def main():
 
     # Run the simple thing
     if args.simple:
-        simple_system()
+        env, system = simple_system(args.output_file)
     if args.load_gtfs:
-        load_gtfs(args.load_gtfs, args.output_file)
+        env, system = load_gtfs(args.load_gtfs, args.output_file)
+
+    # Now actually run it
+    run_system(env, system, until=args.until)
