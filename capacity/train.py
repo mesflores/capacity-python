@@ -67,7 +67,7 @@ class Train(object):
         self.run_line_action = self.network.env.process(self.run_line())
 
         if not hasattr(self, "capacity"):
-            self.capacity=10
+            self.capacity = 10
 
     def get_next_stop(self):
         """Where is this train headed to next? """
@@ -75,7 +75,7 @@ class Train(object):
 
     def output_riders(self):
         """This function just prints the current riders"""
-        print("Riders: %d"%(len(self.riders.items)))
+        print("Riders: %d"%(len(self.riders)))
 
     def should_board(self, rider):
         """Called by the filterstore at the station  to see which riders whould
@@ -86,9 +86,9 @@ class Train(object):
 
         # Where is the train going next?
         next_train_stop = self.get_next_stop()
-        
+
         # If this train is at the last stop, no boarding
-        if next_train_stop == None:
+        if next_train_stop is None:
             print("Not boarding because last stop!")
             return False
 
@@ -107,7 +107,7 @@ class Train(object):
 
     def should_alight(self, rider):
         """Should the rider get off here?"""
-        
+
         # Are we there?
         if rider.dest == self.location:
             return True
@@ -135,7 +135,7 @@ class Train(object):
                         logging.info("[%d] Train full at %s",
                                      self.network.env.now,
                                      self.location)
-                        break 
+                        break
                     # Get on the train
                     boarding.append(passanger)
             # Remove from station...
@@ -159,16 +159,16 @@ class Train(object):
             yield self.network.env.timeout(distance)
 
             self.location = dst
- 
+
             # ARRIVE AT NEW STATION
             # Figure out who should get off here
             exiting = []
             for rider in self.riders:
-                # Check if they should 
+                # Check if they should
                 if self.should_alight(rider):
                     exiting.append(rider)
 
-            # Remove them all from the train 
+            # Remove them all from the train
             for rider in exiting:
                 self.riders.remove(rider)
 

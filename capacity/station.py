@@ -18,11 +18,11 @@ class Station(object):
 
         # Stations have infinite capacity. Fine for now...
         #self.passenger_load = simpy.FilterStore(self.network.env)
-        self.passanger_load = []   
+        self.passanger_load = []
 
         # Popularity
         self.out_popularity = 20 # Likelihood of stopping here
-        self.in_popularity = 100 # Arrivals
+        self.in_popularity = 10 # Arrivals
 
         # Placeholder position
         self.pos = None
@@ -52,4 +52,4 @@ class Station(object):
 
     def print_load(self):
         """ Output the load"""
-        print(self.load)
+        print(len(self.passanger_load))

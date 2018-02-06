@@ -70,24 +70,23 @@ class TransitNetwork(object):
         positions = True
         for stop in self.station_dict:
             curr_stop = self.station_dict[stop]
-            if curr_stop.pos == None:
+            if curr_stop.pos is None:
                 positions = False
             pos_dir[stop] = curr_stop.pos
             name_dir[stop] = curr_stop.name
 
-        
-        if positions: 
+        if positions:
             nx.draw(self._connect_graph, pos=pos_dir, with_labels=True,
                     labels=name_dir,
                     font_size=8,
                     node_size=100,
-                )
+                   )
         else:
             nx.draw(self._connect_graph, with_labels=True,
                     labels=name_dir,
                     font_size=8,
                     node_size=100,
-                )
+                   )
 
     def get_name(self, station_id):
         """ Return the string name of a station"""
@@ -129,8 +128,7 @@ class TransitNetwork(object):
 
     def determine_route(self, start, destination):
         """ Determine the shortest path from start to destination, return a list of all the hops"""
-        path = nx.shortest_path(G=self._connect_graph, source=start, 
+        path = nx.shortest_path(G=self._connect_graph, source=start,
                                 target=destination, weight="weight")
 
         return path
-
