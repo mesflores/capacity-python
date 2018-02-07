@@ -22,6 +22,7 @@ class TransitNetwork(object):
 
         # The stations in the network
         self.station_dict = {}
+        self.popularity_dict = {}
 
         # Trains in the network
         self.trains = []
@@ -35,7 +36,6 @@ class TransitNetwork(object):
         # The graph that describes connections between stations
         # The stations are stored as integers
         self._connect_graph = nx.DiGraph()
-
 
     def read_gtfs(self, gtfs_file_dir):
         """ Create a network with GTFS Data """
@@ -116,12 +116,16 @@ class TransitNetwork(object):
         """ Given two stations, connect them in the graph"""
         self._connect_graph.add_edge(source_id, dest_id, weight=weight)
 
-    def add_train(self, home_station_id, route, train_type=None):
+    def add_train(self, home_station_id, route, run=None, train_type=None):
         """ Create a new train """
+        # If no run name defined, just call it the home station
+        if run == None:
+            run = home_station_id
+
         if train_type is None:
-            new_train = train.Train(home_station_id, self, route)
+            new_train = train.Train(home_station_id, self, route, run)
         else:
-            new_train = train_type(home_station_id, self, route, 3)
+            new_train = train_type(home_station_id, self, route, run, 3)
 
         # Put the train in the list
         self.trains.append(new_train)
@@ -132,3 +136,4 @@ class TransitNetwork(object):
                                 target=destination, weight="weight")
 
         return path
+

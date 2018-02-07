@@ -48,9 +48,11 @@ class Route(object):
 
 class Train(object):
     """ Basic train service object """
-    def __init__(self, location, network, route):
+    def __init__(self, location, network, route, run):
         # pointer to the object we live in
         self.network = network
+
+        self.run =  run
 
         # Usage and cap info
         #self.riders = simpy.Container(self.network.env, self.capacity, 0)
@@ -132,8 +134,9 @@ class Train(object):
                     room = self.capacity - len(self.riders)
                     # The train is full
                     if room == 0:
-                        logging.info("[%d] Train full at %s",
+                        logging.info("[%d][%s] Train full at %s",
                                      self.network.env.now,
+                                     self.run,
                                      self.location)
                         break
                     # Get on the train
@@ -146,8 +149,9 @@ class Train(object):
             # Log increases
             self.network.stats.log_boarding(self.location, len(boarding))
 
-            logging.info("[%d] Train boarded %d at %s",
+            logging.info("[%d][%s] Train boarded %d at %s",
                          self.network.env.now,
+                         self.run,
                          len(boarding), self.network.get_name(self.location))
 
             # Drive to the next station
@@ -172,8 +176,9 @@ class Train(object):
             for rider in exiting:
                 self.riders.remove(rider)
 
-            logging.info("[%d] Train emptied %d at %s",
+            logging.info("[%d][%s] Train emptied %d at %s",
                          self.network.env.now,
+                         self.run,
                          len(exiting),
                          self.network.get_name(self.location))
 
@@ -193,9 +198,9 @@ class Train(object):
 
 class KS_P3010(Train):
     """ A KinkiSharyo P 3010 """
-    def __init__(self, location, network, route, cars):
+    def __init__(self, location, network, route, run, cars):
         # Set the capacity accordingly
         self.capacity = 68 * cars #NOTE: Assume 3 cars for now
 
         # super
-        super().__init__(location, network, route)
+        super().__init__(location, network, route, run)

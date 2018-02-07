@@ -22,18 +22,24 @@ def simple_system(output_file):
     system.add_station(1, "A")
     system.add_station(2, "B")
     system.add_station(3, "C")
+    system.add_station(4, "D")
 
     # Connect them
     system.connect_station_pair(1, 2, 5)
     system.connect_station_pair(2, 1, 5)
     system.connect_station_pair(2, 3, 3)
     system.connect_station_pair(3, 2, 3)
+    system.connect_station_pair(3, 4, 4)
+    system.connect_station_pair(4, 3, 4)
 
     #Make a route
-    route = train.Route(1, 3, [1, 2, 3])
+    route = train.Route(1, 4, [1, 2, 3, 4])
+    route_2 = train.Route(4, 1, [4, 3, 2, 1])
 
     # Make a train
     system.add_train(1, route) #Starts at station 1
+    # Make 2 trains!
+    system.add_train(4, route_2) #Starts at station 4
 
     return (env, system)
 
