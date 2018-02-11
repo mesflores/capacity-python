@@ -121,38 +121,79 @@ class Train(object):
         """Run line as dictated by the network """
 
         # Run Forever right now
+    
+        prev_station = 0 # TODO What track does a run start on?
+
         while True:
-            # Collect as many passangers as you can from a location
-            curr_station = self.network.station_dict[self.location]
+            # First figure out what track we are at? 
+            # Which track will we be entering on?
+            track = self.network.station_dict[self.location].get_next_track(prev_station)  
 
-            # Take everybody here that needs to get on
-            boarding = []
-            for passanger in curr_station.passanger_load:
-                # SHould they get on this train?
-                if self.should_board(passanger):
-                    # Is there room?
-                    room = self.capacity - len(self.riders)
-                    # The train is full
-                    if room == 0:
-                        logging.info("[%d][%s] Train full at %s",
-                                     self.network.env.now,
-                                     self.run,
-                                     self.location)
-                        break
-                    # Get on the train
-                    boarding.append(passanger)
-            # Remove from station...
-            for passanger in boarding:
-                curr_station.passanger_load.remove(passanger)
-                self.riders.append(passanger)
+            with track.request() as track_req:
+                yield track_req
 
-            # Log increases
-            self.network.stats.log_boarding(self.location, len(boarding))
+                # ARRIVE AT NEW STATION
+                ########## Alighting ###########################
+                # Figure out who should get off here
+                exiting = []
+                for rider in self.riders:
+                    # Check if they should
+                    if self.should_alight(rider):
+                        exiting.append(rider)
 
-            logging.info("[%d][%s] Train boarded %d at %s",
-                         self.network.env.now,
-                         self.run,
-                         len(boarding), self.network.get_name(self.location))
+                # Remove them all from the train
+                for rider in exiting:
+                    self.riders.remove(rider)
+
+                logging.info("[%d][%s] Train emptied %d at %s",
+                             self.network.env.now,
+                             self.run,
+                             len(exiting),
+                             self.network.get_name(self.location))
+                
+                # TODO That should take some time...
+
+                # Route control:
+                # Reverse the route if needed
+                self.route.check_route(self.location)
+
+
+                ########## Boarding ###########################
+                # Collect as many passangers as you can from a location
+                curr_station = self.network.station_dict[self.location]
+
+                # Take everybody here that needs to get on
+                boarding = []
+                for passanger in curr_station.passanger_load:
+                    # SHould they get on this train?
+                    if self.should_board(passanger):
+                        # Is there room?
+                        room = self.capacity - len(self.riders)
+                        # The train is full
+                        if room == 0:
+                            logging.info("[%d][%s] Train full at %s",
+                                         self.network.env.now,
+                                         self.run,
+                                         self.location)
+                            break
+                        # Get on the train
+                        boarding.append(passanger)
+                # Remove from station...
+                for passanger in boarding:
+                    curr_station.passanger_load.remove(passanger)
+                    self.riders.append(passanger)
+
+                # Log increases
+                self.network.stats.log_boarding(self.location, len(boarding))
+
+                logging.info("[%d][%s] Train boarded %d at %s",
+                             self.network.env.now,
+                             self.run,
+                             len(boarding), self.network.get_name(self.location))
+                
+                # TODO: Boarding should consume some time
+
+            # Here we've left the station, so we have relinquished the track we were holding
 
             # Drive to the next station
             src = self.location
@@ -162,29 +203,12 @@ class Train(object):
             distance = self.network.get_distance(src, dst)
             yield self.network.env.timeout(distance)
 
+            # Update the locations accordingly
+            prev_station = src
             self.location = dst
 
-            # ARRIVE AT NEW STATION
-            # Figure out who should get off here
-            exiting = []
-            for rider in self.riders:
-                # Check if they should
-                if self.should_alight(rider):
-                    exiting.append(rider)
-
-            # Remove them all from the train
-            for rider in exiting:
-                self.riders.remove(rider)
-
-            logging.info("[%d][%s] Train emptied %d at %s",
-                         self.network.env.now,
-                         self.run,
-                         len(exiting),
-                         self.network.get_name(self.location))
-
-            # Reverse the route if needed
-            self.route.check_route(self.location)
             # Repeat...
+
 
     def sample_departures(self, dst):
         """ Figure out how many people get off here """

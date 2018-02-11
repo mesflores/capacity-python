@@ -19,6 +19,14 @@ class Station(object):
         # Stations have infinite capacity. Fine for now...
         #self.passenger_load = simpy.FilterStore(self.network.env)
         self.passanger_load = []
+        
+        # Tracks
+        # For now assume every station has two tracks (will get fancy, someday)  
+        # Track from the the lower indexed station
+        self.track_a = simpy.Resource(network.env, capacity=1)
+        # Track from the higher indexed station
+        self.track_b = simpy.Resource(network.env, capacity=1)
+
 
         # Popularity
         self.out_popularity = 20 # Likelihood of stopping here
@@ -53,3 +61,14 @@ class Station(object):
     def print_load(self):
         """ Output the load"""
         print(len(self.passanger_load))
+
+    def get_next_track(self, src):
+        """Figure out what track it would need to get here from src""" 
+
+        # Check the station ordering, give the right track
+        if src < self.station_id:
+            # Came from a lower station
+            return self.track_a
+        else:
+            return self.track_b
+
