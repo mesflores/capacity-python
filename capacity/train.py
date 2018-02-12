@@ -52,7 +52,7 @@ class Train(object):
         # pointer to the object we live in
         self.network = network
 
-        self.run =  run
+        self.run = run
 
         # Usage and cap info
         #self.riders = simpy.Container(self.network.env, self.capacity, 0)
@@ -121,16 +121,21 @@ class Train(object):
         """Run line as dictated by the network """
 
         # Run Forever right now
-    
+
         prev_station = 0 # TODO What track does a run start on?
 
         while True:
-            # First figure out what track we are at? 
+            # First figure out what track we are at?
             # Which track will we be entering on?
-            track = self.network.station_dict[self.location].get_next_track(prev_station)  
+            track = self.network.station_dict[self.location].get_next_track(prev_station)
 
             with track.request() as track_req:
+                start = self.network.env.now
                 yield track_req
+                stop = self.network.env.now
+
+                if (stop - start) > 0:
+                    print(stop - start)
 
                 # ARRIVE AT NEW STATION
                 ########## Alighting ###########################
@@ -150,8 +155,9 @@ class Train(object):
                              self.run,
                              len(exiting),
                              self.network.get_name(self.location))
-                
+
                 # TODO That should take some time...
+                yield self.network.env.timeout(1)
 
                 # Route control:
                 # Reverse the route if needed
@@ -190,8 +196,9 @@ class Train(object):
                              self.network.env.now,
                              self.run,
                              len(boarding), self.network.get_name(self.location))
-                
+
                 # TODO: Boarding should consume some time
+                yield self.network.env.timeout(1)
 
             # Here we've left the station, so we have relinquished the track we were holding
 

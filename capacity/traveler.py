@@ -17,8 +17,6 @@ class PassangerState(object):
         self.time_riding = []
         self.time_transferring = []
 
- 
-
 class Passenger(object):
     """Traveler on the system """
     def __init__(self, start, network):
@@ -76,8 +74,9 @@ class Passenger(object):
         """ Where is next? """
         return self.route[self.route_index + 1]
 
-    def board_vehicle(self): 
+    def board_vehicle(self):
         """ Record some stats marking boarding """
+        pass
 
     def arrived(self):
         """ If you arrive at destination, log info"""

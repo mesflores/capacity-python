@@ -34,12 +34,12 @@ def simple_system(output_file):
 
     #Make a route
     route = train.Route(1, 4, [1, 2, 3, 4])
-    #route_2 = train.Route(4, 1, [4, 3, 2, 1])
+    route_2 = train.Route(4, 1, [4, 3, 2, 1])
 
     # Make a train
     system.add_train(1, route) #Starts at station 1
     # Make 2 trains!
-    #system.add_train(4, route_2) #Starts at station 4
+    system.add_train(4, route_2) #Starts at station 4
 
     return (env, system)
 

@@ -124,7 +124,7 @@ class TransitNetwork(object):
     def add_train(self, home_station_id, route, run=None, train_type=None):
         """ Create a new train """
         # If no run name defined, just call it the home station
-        if run == None:
+        if run is None:
             run = home_station_id
 
         if train_type is None:
@@ -141,4 +141,3 @@ class TransitNetwork(object):
                                 target=destination, weight="weight")
 
         return path
-
