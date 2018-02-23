@@ -12,6 +12,7 @@ setup(name='capacity',
         "matplotlib",
       ],
       entry_points = {
-                      'console_scripts': ['capacity=capacity.main:main'],
+                      'console_scripts': ['capacity=capacity.main:main',
+                                          'plot=capacity.plot:plot_traveler_time',],
                      },
       )

@@ -18,7 +18,7 @@ class Station(object):
 
         # Stations have infinite capacity. Fine for now...
         #self.passenger_load = simpy.FilterStore(self.network.env)
-        self.passanger_load = []
+        self.passenger_load = []
 
         # Tracks
         # For now assume every station has two tracks (will get fancy, someday)
@@ -47,7 +47,7 @@ class Station(object):
             if new_pass.dest != self.station_id:
                 # Put them into the local store
                 #self.passenger_load.put(new_pass)
-                self.passanger_load.append(new_pass)
+                self.passenger_load.append(new_pass)
 
             # Generate load based on poisson arrivals
             #TODO: I dunno pick a better one
@@ -60,7 +60,7 @@ class Station(object):
 
     def print_load(self):
         """ Output the load"""
-        print(len(self.passanger_load))
+        print(len(self.passenger_load))
 
     def get_next_track(self, src):
         """Figure out what track it would need to get here from src"""

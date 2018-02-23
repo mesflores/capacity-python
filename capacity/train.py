@@ -84,7 +84,7 @@ class Train(object):
         get on the train """
 
         # Here, we should check to see if the next stop for the train is the
-        # next stop for the passanger
+        # next stop for the passenger
 
         # Where is the train going next?
         next_train_stop = self.get_next_stop()
@@ -149,6 +149,7 @@ class Train(object):
                 # Remove them all from the train
                 for rider in exiting:
                     self.riders.remove(rider)
+                    rider.arrived()
 
                 logging.info("[%d][%s] Train emptied %d at %s",
                              self.network.env.now,
@@ -165,14 +166,14 @@ class Train(object):
 
 
                 ########## Boarding ###########################
-                # Collect as many passangers as you can from a location
+                # Collect as many passengers as you can from a location
                 curr_station = self.network.station_dict[self.location]
 
                 # Take everybody here that needs to get on
                 boarding = []
-                for passanger in curr_station.passanger_load:
+                for passenger in curr_station.passenger_load:
                     # SHould they get on this train?
-                    if self.should_board(passanger):
+                    if self.should_board(passenger):
                         # Is there room?
                         room = self.capacity - len(self.riders)
                         # The train is full
@@ -183,11 +184,12 @@ class Train(object):
                                          self.location)
                             break
                         # Get on the train
-                        boarding.append(passanger)
+                        boarding.append(passenger)
                 # Remove from station...
-                for passanger in boarding:
-                    curr_station.passanger_load.remove(passanger)
-                    self.riders.append(passanger)
+                for passenger in boarding:
+                    curr_station.passenger_load.remove(passenger)
+                    self.riders.append(passenger)
+                    passenger.board_vehicle()
 
                 # Log increases
                 self.network.stats.log_boarding(self.location, len(boarding))
@@ -216,13 +218,11 @@ class Train(object):
 
             # Repeat...
 
-
     def sample_departures(self, dst):
         """ Figure out how many people get off here """
         # What's the stations out_pop?
         out_pop = self.network.station_dict[dst].out_popularity
 
-        # TODO: pick something real
         depart = np.random.zipf(1+float(out_pop)/100)
 
         return depart

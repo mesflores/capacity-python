@@ -1,21 +1,54 @@
 """Traveler.py -- the basic traveler class"""
 
+import collections
+import csv
 import logging
 import random
 
-class PassangerState(object):
-    """A state machine to keep track of passanger experience"""
-    def __init__(self):
+from capacity.conf import TRAVELER_STATS_FILE
+
+class PassengerState(object):
+    """A state machine to keep track of passenger experience"""
+    def __init__(self, time, start, dest):
         # States
         # waiting - waiting for a vehicle at a stop
         # riding - on a moving vehicle
         # transferring - moveing between two stations
 
-        self.state = "waiting"
+        # NOTE: maybe this doesn't need to be here, could just point up?
+        self.start = start
+        self.dest = dest
 
-        self.time_waiting = []
-        self.time_riding = []
-        self.time_transferring = []
+        self.state = "waiting"
+        
+        self.time_record = collections.defaultdict(list)
+
+        self.time = time
+
+    def change_state(self, state, curr_time):
+        """ Advance the state """
+        
+        # First, let's compute the time difference
+        time_delta = curr_time - self.time
+
+        # Log that time delta
+        self.time_record[self.state].append(time_delta)
+
+        # Go ahead and set the new state and reset the timer
+        self.state=state
+        self.time = curr_time
+
+    def write_log(self):
+        """ Write the travelers info to the stat file"""
+        with open(TRAVELER_STATS_FILE, 'a') as stat_file:
+            travel_writer = csv.writer(stat_file)
+            # Every row starts with the start and destnation
+            row = [self.start, self.dest]
+            # This uses a static list so that the order is fixed
+            for state in ["waiting", "riding", "transferring"]:
+                state_total = sum(self.time_record[state])
+                row.append(state_total)
+            travel_writer.writerow(row)
 
 class Passenger(object):
     """Traveler on the system """
@@ -38,13 +71,8 @@ class Passenger(object):
         # Pick a route there
         self._route_to_dest()
 
-        # Passanger state machine
-        self.state = "Waiting"
-        self.time = network.env.now
-
-        # Some statistics
-        self.time_waiting = []
-        self.time_riding = []
+        # Passenger state machine
+        self.state = PassengerState(self.network.env.now, self.start, self.dest)
 
         logging.info("[%d] person at %s going to %s",
                      network.env.now, self.start, self.dest)
@@ -76,9 +104,11 @@ class Passenger(object):
 
     def board_vehicle(self):
         """ Record some stats marking boarding """
-        pass
-
+        self.state.change_state("riding", self.network.env.now)
+    
     def arrived(self):
         """ If you arrive at destination, log info"""
-        #TODO: Collect final stats
-        pass
+        self.state.change_state("waiting", self.network.env.now)
+
+        # Write out the log
+        self.state.write_log()
