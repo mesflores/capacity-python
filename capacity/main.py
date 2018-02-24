@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import os.path
 import logging
 import sys
 
@@ -17,7 +18,8 @@ from capacity.conf import TRAVELER_STATS_FILE
 def reset_stats():
     """ Do some file cleanup"""
     # TODO: Replace this with a more robust system that stores "runs"
-    os.remove(TRAVELER_STATS_FILE)
+    if os.path.isfile(TRAVELER_STATS_FILE):
+        os.remove(TRAVELER_STATS_FILE)
 
 def simple_system(output_file):
     """ Create a simple system for debugging """
@@ -70,7 +72,11 @@ def load_gtfs(gtfs_dir, output_file):
     route = train.Route("80122", "80139", stop_list)
 
     # Add that route to a KS P3010
-    system.add_train("80122", route, train.KS_P3010)
+    system.add_train("80122", route, train_type=train.KS_P3010)
+
+
+    route2 = train.Route("80139", "80122", stop_list[::-1])
+    system.add_train("80139", route2, train_type=train.KS_P3010)
 
     return (env, system)
 
@@ -107,6 +113,9 @@ def main():
     # Config logging
     logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
+    # Reset stats files
+    reset_stats()
+    
     logging.info("Starting...")
 
     # Run the simple thing

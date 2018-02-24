@@ -97,8 +97,7 @@ class TransitNetwork(object):
         """ Look up the weight between two stations """
 
         # TODO: Find a better way to handle travel time
-        delay = abs(np.random.normal(0, 5))
-
+        delay = abs(np.random.normal(0, 3))
         return self._connect_graph.get_edge_data(src, dst)["weight"] + delay
 
     def add_station(self, station_id, name):

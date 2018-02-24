@@ -40,6 +40,11 @@ class Station(object):
 
     def gen_load(self):
         """ Add incoming load"""
+
+        # XXX XXX XXX XXX XXX REMOVE ME
+        if not self.station_id.startswith("801"):
+            return 
+
         while True:
             # Generate a new passenger
             new_pass = traveler.Passenger(self.station_id, self.network)
@@ -65,7 +70,8 @@ class Station(object):
     def get_next_track(self, src):
         """Figure out what track it would need to get here from src"""
         # Check the station ordering, give the right track
-        if src < self.station_id:
+        # WARN: this int cast might be dangerous
+        if int(src) < int(self.station_id):
             # Came from a lower station
             return self.track_a
 

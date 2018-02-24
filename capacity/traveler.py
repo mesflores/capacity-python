@@ -82,7 +82,9 @@ class Passenger(object):
         station_dict = self.network.station_dict
 
         stations = list(station_dict.keys())
-        weights = [station_dict[x].in_popularity for x in station_dict]
+        # XXX XXX XXX XXX XXX Remove me!
+        stations = [x for x in stations if x.startswith("801")]
+        weights = [station_dict[x].in_popularity for x in stations]
 
         # pick using the given weight distributions
         self.dest = random.choices(stations, weights=weights)[0]
