@@ -3,7 +3,6 @@
 import logging
 
 import numpy as np
-import simpy
 
 class Route(object):
     """ Container object which describes a route """

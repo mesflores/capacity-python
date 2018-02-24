@@ -1,7 +1,9 @@
 """Capacity -- A transit simulator I guess """
 
 import argparse
+import os
 import logging
+import sys
 
 import simpy
 
@@ -10,6 +12,12 @@ from matplotlib import pyplot as plt
 import capacity.network as network
 import capacity.train as train
 
+from capacity.conf import TRAVELER_STATS_FILE
+
+def reset_stats():
+    """ Do some file cleanup"""
+    # TODO: Replace this with a more robust system that stores "runs"
+    os.remove(TRAVELER_STATS_FILE)
 
 def simple_system(output_file):
     """ Create a simple system for debugging """
@@ -104,8 +112,11 @@ def main():
     # Run the simple thing
     if args.simple:
         env, system = simple_system(args.output_file)
-    if args.load_gtfs:
+    elif args.load_gtfs:
         env, system = load_gtfs(args.load_gtfs, args.output_file)
+    else:
+        print("Run type required!")
+        sys.exit(-1)
 
     # Now actually run it
     run_system(env, system, until=args.until)

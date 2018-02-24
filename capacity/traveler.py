@@ -20,14 +20,12 @@ class PassengerState(object):
         self.dest = dest
 
         self.state = "waiting"
-        
         self.time_record = collections.defaultdict(list)
-
         self.time = time
 
     def change_state(self, state, curr_time):
         """ Advance the state """
-        
+
         # First, let's compute the time difference
         time_delta = curr_time - self.time
 
@@ -35,7 +33,7 @@ class PassengerState(object):
         self.time_record[self.state].append(time_delta)
 
         # Go ahead and set the new state and reset the timer
-        self.state=state
+        self.state = state
         self.time = curr_time
 
     def write_log(self):
@@ -105,7 +103,7 @@ class Passenger(object):
     def board_vehicle(self):
         """ Record some stats marking boarding """
         self.state.change_state("riding", self.network.env.now)
-    
+
     def arrived(self):
         """ If you arrive at destination, log info"""
         self.state.change_state("waiting", self.network.env.now)

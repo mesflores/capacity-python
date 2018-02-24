@@ -68,5 +68,5 @@ class Station(object):
         if src < self.station_id:
             # Came from a lower station
             return self.track_a
-        else:
-            return self.track_b
+
+        return self.track_b

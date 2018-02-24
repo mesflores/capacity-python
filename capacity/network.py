@@ -99,7 +99,7 @@ class TransitNetwork(object):
         # TODO: Find a better way to handle travel time
         delay = abs(np.random.normal(0, 5))
 
-        return self._connect_graph.get_edge_data(src, dst)["weight"]
+        return self._connect_graph.get_edge_data(src, dst)["weight"] + delay
 
     def add_station(self, station_id, name):
         """ Add a new station """
