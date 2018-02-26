@@ -103,6 +103,10 @@ def main():
     parser.add_argument("--until", action="store", type=int,
                         default="100",
                         help="How long (min) to run the simulation for")
+    # Log level
+    parser.add_argument("--log_level", action="store", type=str,
+                        default="WARN",
+                        help="Log level")
     # Log file location
     parser.add_argument("--output_file", action="store", type=str,
                         default="capacity.log",
@@ -111,7 +115,8 @@ def main():
     args = parser.parse_args()
 
     # Config logging
-    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+    numeric_level = getattr(logging, args.log_level.upper(), None)
+    logging.basicConfig(format='%(asctime)s %(message)s', level=numeric_level)
 
     # Reset stats files
     reset_stats()
