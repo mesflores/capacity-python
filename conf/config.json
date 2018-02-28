@@ -1,0 +1,8 @@
+{
+    "train_delay": { 
+        "normal": {
+            "location": 0.0,
+            "scale": 3.0
+        }
+    }
+}

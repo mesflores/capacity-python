@@ -10,6 +10,7 @@ import simpy
 
 from matplotlib import pyplot as plt
 
+import capacit.config_reader as config_reader
 import capacity.network as network
 import capacity.train as train
 
@@ -21,7 +22,7 @@ def reset_stats():
     if os.path.isfile(TRAVELER_STATS_FILE):
         os.remove(TRAVELER_STATS_FILE)
 
-def simple_system(output_file):
+def simple_system(config_dict, output_file):
     """ Create a simple system for debugging """
     # Make the simpy env
     env = simpy.Environment()
@@ -53,7 +54,7 @@ def simple_system(output_file):
 
     return (env, system)
 
-def load_gtfs(gtfs_dir, output_file):
+def load_gtfs(config_dict, gtfs_dir, output_file):
     """ Create a network from GTFS data """
     # Make the simpy
     env = simpy.Environment()
@@ -102,7 +103,10 @@ def main():
     # Some parameters for the run
     parser.add_argument("--until", action="store", type=int,
                         default="100",
-                        help="How long (min) to run the simulation for")
+                        help="How long (min) to run the simulation")
+    parser.add_argument("--config_json", action="store", type=str,
+                        help="Configuration json to use for the run",
+                        default=None)
     # Log level
     parser.add_argument("--log_level", action="store", type=str,
                         default="WARN",
@@ -123,11 +127,14 @@ def main():
     
     logging.info("Starting...")
 
+    # Load up the config file
+    config_dict = config_reader.read_config_json(args.config_json)
+
     # Run the simple thing
     if args.simple:
-        env, system = simple_system(args.output_file)
+        env, system = simple_system(config_dict, args.output_file)
     elif args.load_gtfs:
-        env, system = load_gtfs(args.load_gtfs, args.output_file)
+        env, system = load_gtfs(config_dict, args.load_gtfs, args.output_file)
     else:
         print("Run type required!")
         sys.exit(-1)
