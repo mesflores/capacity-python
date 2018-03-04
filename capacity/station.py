@@ -42,7 +42,7 @@ class Station(object):
         """ Add incoming load"""
 
         # XXX XXX XXX XXX XXX REMOVE ME
-        if not self.station_id.startswith("801"):
+        if isinstance(self.station_id, str) and not self.station_id.startswith("801"):
             return 
 
         while True:

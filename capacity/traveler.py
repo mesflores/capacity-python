@@ -83,7 +83,7 @@ class Passenger(object):
 
         stations = list(station_dict.keys())
         # XXX XXX XXX XXX XXX Remove me!
-        stations = [x for x in stations if x.startswith("801")]
+        stations = [x for x in stations if isinstance(x, int) or x.startswith("801")]
         weights = [station_dict[x].in_popularity for x in stations]
 
         # pick using the given weight distributions
