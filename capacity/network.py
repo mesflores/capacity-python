@@ -13,7 +13,7 @@ import capacity.utils as utils
 
 class TransitNetwork(object):
     """ The master container class for the transit network object """
-    def __init__(self, env, output_file):
+    def __init__(self, env, output_file, config_file):
         """Creat the graph object initstations and add them """
 
         # The process env for simpy

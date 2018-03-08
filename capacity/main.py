@@ -10,7 +10,7 @@ import simpy
 
 from matplotlib import pyplot as plt
 
-import capacit.config_reader as config_reader
+import capacity.config_reader as config_reader
 import capacity.network as network
 import capacity.train as train
 
@@ -28,7 +28,7 @@ def simple_system(config_dict, output_file):
     env = simpy.Environment()
 
     # Create the the network object
-    system = network.TransitNetwork(env, output_file)
+    system = network.TransitNetwork(env, output_file, config_dict)
     # Add two stations
     system.add_station(1, "A")
     system.add_station(2, "B")
@@ -84,7 +84,6 @@ def load_gtfs(config_dict, gtfs_dir, output_file):
 def run_system(env, system, until=100):
     """Actually run the whole thing """
 
-
     # Run for a little while
     env.run(until=until)
 
@@ -128,6 +127,7 @@ def main():
     logging.info("Starting...")
 
     # Load up the config file
+    logging.info("Loading model constructors...")
     config_dict = config_reader.read_config_json(args.config_json)
 
     # Run the simple thing
