@@ -1,3 +1,5 @@
+""" Load the configs and queue up the constructors """
+
 import json
 import logging
 
@@ -22,7 +24,7 @@ def read_config_json(config_file):
         logging.critical("Couldn't find configuration file!")
         raise error
 
-    # Let's loop through each and grab the appropriate function    
+    # Let's loop through each and grab the appropriate function
     const_dict = {}
     for model in config_json:
         # Only one name per model
@@ -33,4 +35,3 @@ def read_config_json(config_file):
         const_dict[model] = class_init
 
     return const_dict
-

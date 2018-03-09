@@ -11,13 +11,13 @@ def load_model(model_type, name, params):
     #First, let's build the path
     curr_path = os.path.dirname(sys.modules[__name__].__file__)
     path = os.path.join(curr_path, model_type, name+".py")
-    
+
     # Create spec from the file
     spec = importlib.util.spec_from_file_location("capacity.models.%s"%model_type,
                                                   path)
     # Create and load the module
-    foo = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(foo)
+    model_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(model_mod)
 
     # Return the argument free constructor
-    return foo.instantiate(params)
+    return model_mod.instantiate(params)

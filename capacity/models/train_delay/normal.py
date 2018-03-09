@@ -9,7 +9,7 @@ class train_delay(object):
 
         self.loc = loc
         self.scale = scale
-        
+
     def generate_delay(self, source, dest):
         """Draw a value for the delay"""
         return abs(np.random.normal(self.loc, self.scale))

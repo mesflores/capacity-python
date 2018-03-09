@@ -210,7 +210,7 @@ class Train(object):
             # Pay the appropriate time penalty...
             distance = self.network.get_distance(src, dst)
             yield self.network.env.timeout(distance)
-    
+
             # Update the locations accordingly
             prev_station = src
             self.location = dst

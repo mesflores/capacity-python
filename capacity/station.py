@@ -43,7 +43,7 @@ class Station(object):
 
         # XXX XXX XXX XXX XXX REMOVE ME
         if isinstance(self.station_id, str) and not self.station_id.startswith("801"):
-            return 
+            return
 
         while True:
             # Generate a new passenger

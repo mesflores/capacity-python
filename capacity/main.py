@@ -60,7 +60,7 @@ def load_gtfs(config_dict, gtfs_dir, output_file):
     env = simpy.Environment()
 
     # Create the network
-    system = network.TransitNetwork(env, output_file)
+    system = network.TransitNetwork(env, output_file, config_dict)
 
     # Call the GTFS func
     system.read_gtfs(gtfs_dir)
@@ -123,7 +123,7 @@ def main():
 
     # Reset stats files
     reset_stats()
-    
+
     logging.info("Starting...")
 
     # Load up the config file

@@ -13,11 +13,18 @@ import capacity.utils as utils
 
 class TransitNetwork(object):
     """ The master container class for the transit network object """
-    def __init__(self, env, output_file, config_file):
+    def __init__(self, env, output_file, config_dict):
         """Creat the graph object initstations and add them """
 
         # The process env for simpy
         self.env = env
+
+
+        # Instantuate the models needed
+        ## Train delay
+        self.train_delay = config_dict["train_delay"]()
+
+        ########
 
         self.info = ""
 
@@ -97,7 +104,7 @@ class TransitNetwork(object):
         """ Look up the weight between two stations """
 
         # TODO: Find a better way to handle travel time
-        delay = abs(np.random.normal(0, 3))
+        delay = self.train_delay.generate_delay(src, dst)
         return self._connect_graph.get_edge_data(src, dst)["weight"] + delay
 
     def add_station(self, station_id, name):
