@@ -1,8 +1,15 @@
 """ Various utility functions that dont have an obvious home """
 
 import math
+import os
+import os.path
 
 import numpy as np
+
+def reset_stats(file_path):
+    """ Do some file cleanup"""
+    if os.path.isfile(file_path):
+        os.remove(file_path)
 
 def map_to_cartesian(lat, lon):
     """gross mapping to cartesian plane"""

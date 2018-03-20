@@ -1,8 +1,14 @@
 {
-    "train_delay": { 
-        "normal": {
-            "location": 0.0,
-            "scale": 3.0
+    "run_dir": "out/",
+    "files": {
+        "traveler_stat_file": "traveler.log"
+    },
+    "models": {
+        "train_delay": { 
+            "normal": {
+                "location": 0.0,
+                "scale": 3.0
+            }
         }
     }
 }

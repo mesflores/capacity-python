@@ -5,11 +5,9 @@ import csv
 import logging
 import random
 
-from capacity.conf import TRAVELER_STATS_FILE
-
 class PassengerState(object):
     """A state machine to keep track of passenger experience"""
-    def __init__(self, time, start, dest):
+    def __init__(self, time, start, dest, trav_stat_file):
         # States
         # waiting - waiting for a vehicle at a stop
         # riding - on a moving vehicle
@@ -22,6 +20,8 @@ class PassengerState(object):
         self.state = "waiting"
         self.time_record = collections.defaultdict(list)
         self.time = time
+
+        self.trav_stat_file = trav_stat_file
 
     def change_state(self, state, curr_time):
         """ Advance the state """
@@ -38,7 +38,7 @@ class PassengerState(object):
 
     def write_log(self):
         """ Write the travelers info to the stat file"""
-        with open(TRAVELER_STATS_FILE, 'a') as stat_file:
+        with open(self.trav_stat_file, 'a') as stat_file:
             travel_writer = csv.writer(stat_file)
             # Every row starts with the start and destnation
             row = [self.start, self.dest]
@@ -70,7 +70,8 @@ class Passenger(object):
         self._route_to_dest()
 
         # Passenger state machine
-        self.state = PassengerState(self.network.env.now, self.start, self.dest)
+        self.state = PassengerState(self.network.env.now, self.start, self.dest,
+                                    self.network.config["files"]["traveler_stat_file"])
 
         logging.info("[%d] person at %s going to %s",
                      network.env.now, self.start, self.dest)

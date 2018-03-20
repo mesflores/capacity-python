@@ -1,8 +1,6 @@
 """Capacity -- A transit simulator I guess """
 
 import argparse
-import os
-import os.path
 import logging
 import sys
 
@@ -13,14 +11,6 @@ from matplotlib import pyplot as plt
 import capacity.config_reader as config_reader
 import capacity.network as network
 import capacity.train as train
-
-from capacity.conf import TRAVELER_STATS_FILE
-
-def reset_stats():
-    """ Do some file cleanup"""
-    # TODO: Replace this with a more robust system that stores "runs"
-    if os.path.isfile(TRAVELER_STATS_FILE):
-        os.remove(TRAVELER_STATS_FILE)
 
 def simple_system(config_dict, output_file):
     """ Create a simple system for debugging """
@@ -121,8 +111,6 @@ def main():
     numeric_level = getattr(logging, args.log_level.upper(), None)
     logging.basicConfig(format='%(asctime)s %(message)s', level=numeric_level)
 
-    # Reset stats files
-    reset_stats()
 
     logging.info("Starting...")
 

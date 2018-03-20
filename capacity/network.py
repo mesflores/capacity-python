@@ -1,6 +1,8 @@
 """ The master network object """
 
+import errno
 import logging
+import os
 
 import networkx as nx
 import numpy as np
@@ -19,6 +21,18 @@ class TransitNetwork(object):
         # The process env for simpy
         self.env = env
 
+        # Save your configs so you can pass around
+        self.config = config_dict
+        # Make the rundir
+        try:
+            os.makedirs(config_dict["run_dir"])
+        except OSError as error:
+            if error.errno != errno.EEXIST:
+                raise
+
+        # Reset all the output files if needed
+        for file_name in self.config["files"]:
+            utils.reset_stats(self.config["files"][file_name])
 
         # Instantuate the models needed
         ## Train delay

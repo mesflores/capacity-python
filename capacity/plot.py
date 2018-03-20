@@ -7,8 +7,6 @@ import numpy as np
 
 from matplotlib import pyplot as plt
 
-from capacity.conf import TRAVELER_STATS_FILE
-
 def plot_cdf(data_list):
     """Plot the CDF of the sets in data_lsit"""
 
@@ -23,12 +21,12 @@ def plot_cdf(data_list):
     plt.show()
 
 
-def plot_traveler_time():
+def plot_traveler_time(trav_stat_file):
     """Plot some stuff about traveler time"""
 
     mode_dict = defaultdict(list)
 
-    with open(TRAVELER_STATS_FILE) as stat_file:
+    with open(trav_stat_file) as stat_file:
         reader = csv.reader(stat_file)
         for start, dest, wait, ride, transfer in reader:
             mode_dict["wait"].append(float(wait))
