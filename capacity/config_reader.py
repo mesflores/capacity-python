@@ -9,6 +9,7 @@ import capacity.models.model_reg as model_reg
 # This specifies all the files and their defaults
 DEFAULT_FILES = {
     "traveler_stat_file": "traveler.log",
+    "network_stat": "network_stat.log"
 }
 
 def build_path_dict(run_prefix, config_json):

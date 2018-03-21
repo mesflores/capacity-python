@@ -12,13 +12,13 @@ import capacity.config_reader as config_reader
 import capacity.network as network
 import capacity.train as train
 
-def simple_system(config_dict, output_file):
+def simple_system(config_dict):
     """ Create a simple system for debugging """
     # Make the simpy env
     env = simpy.Environment()
 
     # Create the the network object
-    system = network.TransitNetwork(env, output_file, config_dict)
+    system = network.TransitNetwork(env, config_dict)
     # Add two stations
     system.add_station(1, "A")
     system.add_station(2, "B")
@@ -44,13 +44,13 @@ def simple_system(config_dict, output_file):
 
     return (env, system)
 
-def load_gtfs(config_dict, gtfs_dir, output_file):
+def load_gtfs(config_dict, gtfs_dir):
     """ Create a network from GTFS data """
     # Make the simpy
     env = simpy.Environment()
 
     # Create the network
-    system = network.TransitNetwork(env, output_file, config_dict)
+    system = network.TransitNetwork(env, config_dict)
 
     # Call the GTFS func
     system.read_gtfs(gtfs_dir)
@@ -100,10 +100,6 @@ def main():
     parser.add_argument("--log_level", action="store", type=str,
                         default="WARN",
                         help="Log level")
-    # Log file location
-    parser.add_argument("--output_file", action="store", type=str,
-                        default="capacity.log",
-                        help="Location of output file")
 
     args = parser.parse_args()
 
@@ -120,9 +116,9 @@ def main():
 
     # Run the simple thing
     if args.simple:
-        env, system = simple_system(config_dict, args.output_file)
+        env, system = simple_system(config_dict)
     elif args.load_gtfs:
-        env, system = load_gtfs(config_dict, args.load_gtfs, args.output_file)
+        env, system = load_gtfs(config_dict, args.load_gtfs)
     else:
         print("Run type required!")
         sys.exit(-1)

@@ -15,7 +15,7 @@ import capacity.utils as utils
 
 class TransitNetwork(object):
     """ The master container class for the transit network object """
-    def __init__(self, env, output_file, config_dict):
+    def __init__(self, env, config_dict):
         """Creat the graph object initstations and add them """
 
         # The process env for simpy
@@ -51,7 +51,7 @@ class TransitNetwork(object):
 
         # Create and init a stats object
         self.stats = stats.NetworkStats()
-        self.stats.init_output(output_file)
+        self.stats.init_output(self.config["files"]["network_stat"])
         # Fire off the stats loop
         self.stats_action = self.env.process(self.stats.periodic_output(env))
 
