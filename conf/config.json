@@ -4,6 +4,11 @@
         "traveler_stat_file": "traveler.log"
     },
     "models": {
+        "boarding_delay": {
+            "constant": {
+                "value": 1.0
+            }
+        },
         "train_delay": { 
             "normal": {
                 "location": 0.0,

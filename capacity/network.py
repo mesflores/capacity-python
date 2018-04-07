@@ -38,10 +38,6 @@ class TransitNetwork(object):
         ## Train delay
         self.train_delay = config_dict["train_delay"]()
 
-        ########
-
-        self.info = ""
-
         # The stations in the network
         self.station_dict = {}
         self.popularity_dict = {}
@@ -116,9 +112,9 @@ class TransitNetwork(object):
 
     def get_distance(self, src, dst):
         """ Look up the weight between two stations """
-
-        # TODO: Find a better way to handle travel time
+        # Compute delay according to the train_delay model
         delay = self.train_delay.generate_delay(src, dst)
+        # Give us the edge weight, plus the measured delay
         return self._connect_graph.get_edge_data(src, dst)["weight"] + delay
 
     def add_station(self, station_id, name):

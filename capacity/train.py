@@ -121,7 +121,8 @@ class Train(object):
 
         # Run Forever right now
 
-        prev_station = 0 # TODO What track does a run start on?
+        # Just hardcode a start
+        prev_station = 0
 
         while True:
             # First figure out what track we are at?
