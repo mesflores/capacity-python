@@ -67,6 +67,11 @@ class Train(object):
         # Start running the train
         self.run_line_action = self.network.env.process(self.run_line())
 
+        # Set up any models you may need
+        # Boarding delay
+        self.boarding_delay = network.config["boarding_delay"]()
+        self.alighting_delay= network.config["alighting_delay"]()
+
         if not hasattr(self, "capacity"):
             self.capacity = 10
 
@@ -157,8 +162,9 @@ class Train(object):
                              len(exiting),
                              self.network.get_name(self.location))
 
-                # TODO That should take some time...
-                yield self.network.env.timeout(1)
+                # That should take some time...
+                a_delay = self.alighting_delay.generate_delay(self.location, len(exiting))
+                yield self.network.env.timeout(a_delay)
 
                 # Route control:
                 # Reverse the route if needed
@@ -199,8 +205,9 @@ class Train(object):
                              self.run,
                              len(boarding), self.network.get_name(self.location))
 
-                # TODO: Boarding should consume some time
-                yield self.network.env.timeout(1)
+                # Boarding should consume some time
+                b_delay = self.boarding_delay.generate_delay(self.location, len(boarding))
+                yield self.network.env.timeout(b_delay)
 
             # Here we've left the station, so we have relinquished the track we were holding
 

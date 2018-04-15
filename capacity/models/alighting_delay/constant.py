@@ -1,6 +1,6 @@
-"""A constant value boarding delay"""
+"""A constant value alighting delay"""
 
-class boarding_delay(object):
+class alighting_delay(object):
     """Return a constant value"""
     def __init__(self, value):
         """save params"""
@@ -12,4 +12,4 @@ class boarding_delay(object):
 
 def instantiate(parameters):
     """Instantiation instructions"""
-    return lambda: boarding_delay(parameters["value"])
+    return lambda: alighting_delay(parameters["value"])

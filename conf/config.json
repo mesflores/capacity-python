@@ -9,6 +9,11 @@
                 "value": 1.0
             }
         },
+        "alighting_delay": {
+            "constant": {
+                "value": 1.0
+            }
+        },
         "train_delay": { 
             "normal": {
                 "location": 0.0,
