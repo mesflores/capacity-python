@@ -107,6 +107,12 @@ def main():
     numeric_level = getattr(logging, args.log_level.upper(), None)
     logging.basicConfig(format='%(asctime)s %(message)s', level=numeric_level)
 
+    # If there is no config dict specified, just bail hard.
+    if not args.config_json:
+        logging.error("Must specify a configuration file!")
+        print("Must specify a configuration file!")
+        sys.exit(-1)
+
 
     logging.info("Starting...")
 

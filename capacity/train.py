@@ -70,7 +70,7 @@ class Train(object):
         # Set up any models you may need
         # Boarding delay
         self.boarding_delay = network.config["boarding_delay"]()
-        self.alighting_delay= network.config["alighting_delay"]()
+        self.alighting_delay = network.config["alighting_delay"]()
 
         if not hasattr(self, "capacity"):
             self.capacity = 10
