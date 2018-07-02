@@ -166,6 +166,9 @@ def load_gtfs_data(data_dir):
     logging.info("Parsing Stop Times...")
     stop_times = load_stop_times(raw_data["stop_times"])
 
+    logging.info("Parsing Calendar...")
+    calendar = parse_gtfs_file(raw_data["calendar"], "service_id")
+
     #print(json.dumps(stop_times, indent=4))
 
     logging.info("Building minimum adjacencey matrix...")
@@ -179,6 +182,31 @@ def load_gtfs_data(data_dir):
     gtfs_data["stops"] = stop_info
     gtfs_data["trip_info"] = trip_info
     gtfs_data["stop_times"] = stop_times
+    gtfs_data["calendar"] = calendar
     gtfs_data["adj_matrix"] = adj_matrix
 
     return gtfs_data
+
+def generate_route(route_id, gtfs_data):
+    """For a given route, spin through stop times and build longest version """
+
+    trip_id_list = []
+
+    # First, open up the calendar and get all service IDs relevant to the time frame.
+    # XXX Remove this restriction later! XXX
+    for service_id in gtfs_data["calendar"]:
+        service = gtfs_data["calendar"][service_id]
+        print(service.keys())
+
+    
+    # Loop through the trips and get all the trip IDs that match the route 
+    trip_info = gtfs_data["trip_info"]
+    for trip in trip_info:
+        # Is it our route
+        if trip_info[trip]["route_id"] == route_id:
+            trip_id_list.append(trip_info[trip]["trip_id"])
+
+    print(route_id)
+    #print(trip_id_list)
+
+    return route_id

@@ -28,6 +28,7 @@ class Route(object):
 
         return self.stops[index]
 
+    # TODO: Ultimately trains should follow the schedule, not need to do this
     def check_route(self, current):
         """ If you're at the end of the line, flip it"""
 
@@ -167,8 +168,9 @@ class Train(object):
                 yield self.network.env.timeout(a_delay)
 
                 # Route control:
+                # NOTE: For the moment trains are entirely determined by the schedule -- at the end of your route, you just vanish
                 # Reverse the route if needed
-                self.route.check_route(self.location)
+                #self.route.check_route(self.location)
 
 
                 ########## Boarding ###########################

@@ -3,6 +3,7 @@
 import errno
 import logging
 import os
+import sys
 
 import networkx as nx
 import numpy as np
@@ -76,6 +77,14 @@ class TransitNetwork(object):
             for dst in data["adj_matrix"][src]:
                 weight = data["adj_matrix"][src][dst]
                 self.connect_station_pair(src, dst, weight)
+
+        # Build a set of routes from the included stop_times.txt
+        for route in data["routes"]:
+            new_route = gtfs_reader.generate_route(route, data)
+
+        sys.exit(-1)
+
+        # For now add a train for every route I guess?
 
     def draw_network(self):
         """ Draw the network for LOOKING"""

@@ -118,3 +118,54 @@ to manage the parsing of that.
 
     First: convert more hard coded parameters to models
 
+5/12 - Adding other lines
+
+    Currently the hardcoded expo stuff is annoying. As a starter, I want to add
+    the ability to look at the GTFS runs and generate a very simple "route"
+    object from it (that just does the line end to end). As a first pass, this
+    will still ignore the scheduled times, and just create a single train for
+    each run.
+
+    Later, this will have to do something more clever, in particular to account
+    for getting trains to the right place to start runs, etc.
+
+6/27 - Automatic Routes
+
+    Still implementing the described first step of building a full route based
+    on what it sees.
+
+    Generally speaking, however, there problem needs to be solved specifically:
+    For some given schedule, how many trains do I need? And what constraints do
+    I need specific knowledge of to make a good decision. So this is things
+    like how often can we re-use a car, where are there physical turn aroudns,
+    spaces for inter-run-serivice, etc.
+
+    I wonder if there are good standard practices for answering some of those
+    questions? APTA guides? This is literature worth digging up.
+
+6/28 - Routes vs Trains
+    
+    As it stands the abstraction is called "train" but really it's a run. I'm
+    getting hungup on trying to figure out how out of service trains should
+    opperate, but really I want this to be sinpler at first pass. Instead let's
+    just not worry about it, and start trains off on scheduled routes at
+    scheduled times and see what happens. We still want live trains to pile up
+    and compete for resources (stations, track, etc.), but jsut not worry about
+    how many are necessary or how to get them to the right place.
+
+7/1 - Routes Vs Trains
+
+    Ok so here are the first steps to getting this to be straight forward:
+        1) Look at the list of runs create a train with a list of stops that
+           follows the list (This is still  the most annoiyng given how things
+           are situated at the moment..
+        2) Disable auto reversal of routes. When a train route ends just
+           vanish.
+        3) _Eventually_ the idea is that when a route ends a train should sit
+           and wait (do nothing? Get out of the way?) Until a new route picks
+           up from that locations. The train will then assume that route and
+           pick up from there.
+
+    Also going to only take routes from a single weekeday. Because it's
+    relevant to my life route now, I'm going to say: 2 July 2018. As soon as
+    route reading is working, we can make this generic, obviously.
