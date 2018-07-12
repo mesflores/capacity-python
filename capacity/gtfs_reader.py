@@ -192,21 +192,48 @@ def generate_route(route_id, gtfs_data):
 
     trip_id_list = []
 
+    target_date = datetime.datetime.strptime("20180702", "%Y%m%d")
+
     # First, open up the calendar and get all service IDs relevant to the time frame.
     # XXX Remove this restriction later! XXX
+    service_id_list = []
     for service_id in gtfs_data["calendar"]:
         service = gtfs_data["calendar"][service_id]
-        print(service.keys())
+        service_start = datetime.datetime.strptime(service["start_date"], "%Y%m%d")
+        service_end = datetime.datetime.strptime(service["end_date"], "%Y%m%d")
 
-    
+        if target_date >= service_start and target_date <= service_end:
+            service_id_list.append(service_id)
+
+    print(service_id_list)
+    # Ok we have the service IDs, let's get the trips they contain
     # Loop through the trips and get all the trip IDs that match the route 
     trip_info = gtfs_data["trip_info"]
     for trip in trip_info:
         # Is it our route
-        if trip_info[trip]["route_id"] == route_id:
-            trip_id_list.append(trip_info[trip]["trip_id"])
+        if trip_info[trip]["route_id"] != route_id:
+            continue
+
+        # Is it one of our service IDs?
+        if trip_info[trip]["service_id"] not in service_id_list:
+            continue
+
+        # Ok so let's grab that
+        trip_id_list.append(trip_info[trip]["trip_id"])
 
     print(route_id)
-    #print(trip_id_list)
+    print(trip_id_list)
+
+    # Ok, now figure out the routes for each one
+    stop_times = gtfs_data["stop_times"] 
+    for trip_id in stop_times:
+        if trip_id not in trip_id_list:
+            continue
+        # Ok this is a trip we want
+        new_route = [(stop["stop_id"], stop["arrival_time"]) for stop in stop_times[trip_id]]
+        # Get the start time
+
+        print(new_route)
+
 
     return route_id
