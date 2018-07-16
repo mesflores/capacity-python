@@ -1,19 +1,21 @@
 """Train object """
-
+import datetime
 import logging
 
 import numpy as np
 
 class Route(object):
     """ Container object which describes a route """
-    def __init__(self, origin, terminal, steps):
-        self.origin = origin
-        self.terminal = terminal
+    def __init__(self, steps):
 
         # Steps is a list of pairs:
         # (stop, time), ...
         # Where time is the time it is scheduled to arrive
         self.stops = steps
+
+        # We can infer these
+        self.origin = steps[0]
+        self.terminal = steps[-1]
 
     def goto_next(self, current):
         """ get the next stop """
@@ -32,14 +34,6 @@ class Route(object):
         # Only return the stop itself for now
         return self.stops[index][0]
 
-    # TODO: Ultimately trains should follow the schedule, not need to do this
-    # TODO: REMovE THIS
-    def check_route(self, current):
-        """ If you're at the end of the line, flip it"""
-
-        if current == self.stops[-1]:
-            self.stops = list(reversed(self.stops))
-
     def get_next(self, current):
         """Return the next stop, but dont change anything"""
         index = self.stops.index(current)
@@ -53,7 +47,7 @@ class Route(object):
 
 class Train(object):
     """ Basic train service object """
-    def __init__(self, location, network, route, run):
+    def __init__(self, network, route, run):
         # pointer to the object we live in
         self.network = network
 
@@ -65,7 +59,7 @@ class Train(object):
         self.riders = []
 
         # set the location
-        self.location = location
+        self.location = route.origin
 
         # set the route
         self.route = route
@@ -130,8 +124,14 @@ class Train(object):
     def run_line(self):
         """Run line as dictated by the network """
 
-        # Run Forever right now
+        # Wait until your scheduled time
+        start_date = datetime.datetime.strptime(self.location[1], "%Y%m%d %H:%M:%S")
+        # How long until you start?
+        schedule_pause = start_date.timestamp() - self.network.env.now
 
+        # Sleep it off until you are supposed to start
+        yield self.network.env.timeout(schedule_pause)
+            
         # Just hardcode a start
         prev_station = 0
 
@@ -243,9 +243,20 @@ class Train(object):
 
 class KS_P3010(Train):
     """ A KinkiSharyo P 3010 """
-    def __init__(self, location, network, route, run, cars):
+    def __init__(self, network, route, run, cars):
         # Set the capacity accordingly
         self.capacity = 68 * cars #NOTE: Assume 3 cars for now
 
         # super
-        super().__init__(location, network, route, run)
+        super().__init__(network, route, run)
+
+class Breda_A650(Train):
+    """ A Breda A650 Heavy Rail Car """
+    def __init__(self, network, route, run, cars):
+        # Set the capacity accordingly
+        self.capacity = 180 * cars #NOTE: Assume 3 cars for now
+
+        # super
+        super().__init__(network, route, run)
+
+

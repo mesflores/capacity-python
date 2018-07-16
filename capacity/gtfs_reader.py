@@ -230,7 +230,33 @@ def generate_route(route_id, gtfs_data):
             continue
         # Ok this is a trip we want
         new_route = [(stop["stop_id"], stop["arrival_time"]) for stop in stop_times[trip_id]]
+        # XXX XXX XXX
+        # For now, just map all the arrival times to today -- in the future this will have to be clever
+        new_route = [(x[0], map_to_date(x[1], "20180702")) for x in new_route]
+        
         # Get the start time
         route_list.append(new_route)
 
-    return new_route
+    return route_list
+
+def map_to_date(s_time, date):
+    """Spit out a formated date-time using theset two"""
+    # This time format is bad and I feel bad
+
+    # In general this time hacking is nasty. Basically the issue is that the
+    # GTFS runs have a day, but the day might cary over past midnight. Python
+    # datetimes dont like that.
+    time_split = s_time.split(":")
+    # If its more than 24, add one to the date
+    if int(time_split[0]) == 24:
+        date = str(int(date) + 1)
+        s_time = "00:" + time_split[1] + ":" + time_split[2]
+    elif int(time_split[0]) == 25:
+        date = str(int(date) + 1)
+        s_time = "01:" + time_split[1] + ":" + time_split[2]
+    elif int(time_split[0]) == 26:
+        date = str(int(date) + 1)
+        s_time = "02:" + time_split[1] + ":" + time_split[2]
+
+    return date + " " + s_time
+

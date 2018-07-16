@@ -3,6 +3,7 @@
 import errno
 import logging
 import os
+import uuid
 import sys
 
 import networkx as nx
@@ -79,12 +80,19 @@ class TransitNetwork(object):
                 self.connect_station_pair(src, dst, weight)
 
         # Build a set of routes from the included stop_times.txt
+        logging.info("Adding trains...")
         for route in data["routes"]:
-            new_route = gtfs_reader.generate_route(route, data)
+            # get a list of all the runs in a day
+            route_stop_list = gtfs_reader.generate_route(route, data)
+            # Make a route for each one
+            for stop_list in route_stop_list:
+                new_route = train.Route(stop_list)
+                # Add a train for that route too 
+                # TODO: For now, this assumes everything is a light rail
+                # Later we should sort out the rolling stock from the GTFS (+0ther data?)
+                self.add_train(new_route, train_type=train.KS_P3010)
 
-        sys.exit(-1)
-
-        # For now add a train for every route I guess?
+        logging.info("GTFS setup complete!")
 
     def draw_network(self):
         """ Draw the network for LOOKING"""
@@ -146,16 +154,16 @@ class TransitNetwork(object):
         """ Given two stations, connect them in the graph"""
         self._connect_graph.add_edge(source_id, dest_id, weight=weight)
 
-    def add_train(self, home_station_id, route, run=None, train_type=None):
+    def add_train(self, route, run=None, train_type=None):
         """ Create a new train """
         # If no run name defined, just call it the home station
         if run is None:
-            run = home_station_id
+            run = uuid.uuid1()
 
         if train_type is None:
-            new_train = train.Train(home_station_id, self, route, run)
+            new_train = train.Train(self, route, run)
         else:
-            new_train = train_type(home_station_id, self, route, run, 3)
+            new_train = train_type(self, route, run, 3)
 
         # Put the train in the list
         self.trains.append(new_train)

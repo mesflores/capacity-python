@@ -1,8 +1,9 @@
 {
-    "run_dir": "out/",
+    "run_dir": "/tank/out/",
     "files": {
         "traveler_stat_file": "traveler.log"
     },
+    "start_time": "20180702",
     "models": {
         "boarding_delay": {
             "constant": {

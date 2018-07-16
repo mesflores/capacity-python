@@ -1,6 +1,7 @@
 """Capacity -- A transit simulator I guess """
 
 import argparse
+import datetime
 import logging
 import sys
 
@@ -46,8 +47,13 @@ def simple_system(config_dict):
 
 def load_gtfs(config_dict, gtfs_dir):
     """ Create a network from GTFS data """
+
+    # Let's do some quick start time math
+    start_date = datetime.datetime.strptime(config_dict["start_time"], "%Y%m%d")
+    start_sec = start_date.timestamp()    
+
     # Make the simpy
-    env = simpy.Environment()
+    env = simpy.Environment(start_sec)
 
     # Create the network
     system = network.TransitNetwork(env, config_dict)
@@ -55,21 +61,7 @@ def load_gtfs(config_dict, gtfs_dir):
     # Call the GTFS func
     system.read_gtfs(gtfs_dir)
 
-    # Let's make a route -- Full Expo run
-    stop_list = ["80122", "80121", "80123", "80124", "80125", "80126", "80127",
-                 "80128", "80129", "80130", "80131", "80132", "80133", "80134",
-                 "80135", "80136", "80137", "80138",
-                 "80139"]
-    route = train.Route("80122", "80139", stop_list)
-
-    # Add that route to a KS P3010
-    system.add_train("80122", route, train_type=train.KS_P3010)
-
-
-    route2 = train.Route("80139", "80122", stop_list[::-1])
-    system.add_train("80139", route2, train_type=train.KS_P3010)
-
-    return (env, system)
+    return (env, system, start_sec)
 
 def run_system(env, system, until=100):
     """Actually run the whole thing """
@@ -123,11 +115,12 @@ def main():
     # Run the simple thing
     if args.simple:
         env, system = simple_system(config_dict)
+        start = 0
     elif args.load_gtfs:
-        env, system = load_gtfs(config_dict, args.load_gtfs)
+        env, system, start = load_gtfs(config_dict, args.load_gtfs)
     else:
         print("Run type required!")
         sys.exit(-1)
 
     # Now actually run it
-    run_system(env, system, until=args.until)
+    run_system(env, system, until=(args.until+start))
