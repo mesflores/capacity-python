@@ -32,7 +32,7 @@ class Route(object):
         index += 1
 
         # Only return the stop itself for now
-        return self.stops[index][0]
+        return self.stops[index]
 
     def get_next(self, current):
         """Return the next stop, but dont change anything"""
@@ -44,6 +44,13 @@ class Route(object):
 
         # Otherwise, spit it out
         return self.stops[index + 1]
+
+    def check_route(self, current):
+        index = self.stops.index(current)
+        if index == (len(self.stops) - 1):
+            return False
+        return True
+
 
 class Train(object):
     """ Basic train service object """
@@ -91,7 +98,7 @@ class Train(object):
         # next stop for the passenger
 
         # Where is the train going next?
-        next_train_stop = self.get_next_stop()
+        next_train_stop = self.get_next_stop()[0]
 
         # If this train is at the last stop, no boarding
         if next_train_stop is None:
@@ -115,7 +122,7 @@ class Train(object):
         """Should the rider get off here?"""
 
         # Are we there?
-        if rider.dest == self.location:
+        if rider.dest == self.location[0]:
             return True
 
         # TODO: Implement transfers
@@ -133,12 +140,12 @@ class Train(object):
         yield self.network.env.timeout(schedule_pause)
             
         # Just hardcode a start
-        prev_station = 0
+        prev_station = (0, 0)
 
         while True:
             # First figure out what track we are at?
             # Which track will we be entering on?
-            track = self.network.station_dict[self.location].get_next_track(prev_station)
+            track = self.network.station_dict[self.location[0]].get_next_track(prev_station[0])
 
             with track.request() as track_req:
                 start = self.network.env.now
@@ -166,21 +173,21 @@ class Train(object):
                              self.network.env.now,
                              self.run,
                              len(exiting),
-                             self.network.get_name(self.location))
+                             self.network.get_name(self.location[0]))
 
                 # That should take some time...
-                a_delay = self.alighting_delay.generate_delay(self.location, len(exiting))
+                a_delay = self.alighting_delay.generate_delay(self.location[0], len(exiting))
                 yield self.network.env.timeout(a_delay)
 
                 # Route control:
                 # NOTE: For the moment trains are entirely determined by the schedule -- at the end of your route, you just vanish
-                # Reverse the route if needed
-                #self.route.check_route(self.location)
-
+                if not self.route.check_route(self.location):
+                    # Just leave, it's over
+                    return
 
                 ########## Boarding ###########################
                 # Collect as many passengers as you can from a location
-                curr_station = self.network.station_dict[self.location]
+                curr_station = self.network.station_dict[self.location[0]]
 
                 # Take everybody here that needs to get on
                 boarding = []
@@ -194,7 +201,7 @@ class Train(object):
                             logging.info("[%d][%s] Train full at %s",
                                          self.network.env.now,
                                          self.run,
-                                         self.location)
+                                         self.location[0])
                             break
                         # Get on the train
                         boarding.append(passenger)
@@ -205,15 +212,15 @@ class Train(object):
                     passenger.board_vehicle()
 
                 # Log increases
-                self.network.stats.log_boarding(self.location, len(boarding))
+                self.network.stats.log_boarding(self.location[0], len(boarding))
 
                 logging.info("[%d][%s] Train boarded %d at %s",
                              self.network.env.now,
                              self.run,
-                             len(boarding), self.network.get_name(self.location))
+                             len(boarding), self.network.get_name(self.location[0]))
 
                 # Boarding should consume some time
-                b_delay = self.boarding_delay.generate_delay(self.location, len(boarding))
+                b_delay = self.boarding_delay.generate_delay(self.location[0], len(boarding))
                 yield self.network.env.timeout(b_delay)
 
             # Here we've left the station, so we have relinquished the track we were holding
@@ -223,7 +230,7 @@ class Train(object):
             dst = self.route.goto_next(src)
 
             # Pay the appropriate time penalty...
-            distance = self.network.get_distance(src, dst)
+            distance = self.network.get_distance(src[0], dst[0])
             yield self.network.env.timeout(distance)
 
             # Update the locations accordingly
