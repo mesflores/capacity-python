@@ -10,6 +10,9 @@ class Route(object):
         self.origin = origin
         self.terminal = terminal
 
+        # Steps is a list of pairs:
+        # (stop, time), ...
+        # Where time is the time it is scheduled to arrive
         self.stops = steps
 
     def goto_next(self, current):
@@ -26,9 +29,11 @@ class Route(object):
         # Go to the next one
         index += 1
 
-        return self.stops[index]
+        # Only return the stop itself for now
+        return self.stops[index][0]
 
     # TODO: Ultimately trains should follow the schedule, not need to do this
+    # TODO: REMovE THIS
     def check_route(self, current):
         """ If you're at the end of the line, flip it"""
 

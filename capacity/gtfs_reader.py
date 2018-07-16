@@ -205,7 +205,6 @@ def generate_route(route_id, gtfs_data):
         if target_date >= service_start and target_date <= service_end:
             service_id_list.append(service_id)
 
-    print(service_id_list)
     # Ok we have the service IDs, let's get the trips they contain
     # Loop through the trips and get all the trip IDs that match the route 
     trip_info = gtfs_data["trip_info"]
@@ -221,19 +220,17 @@ def generate_route(route_id, gtfs_data):
         # Ok so let's grab that
         trip_id_list.append(trip_info[trip]["trip_id"])
 
-    print(route_id)
-    print(trip_id_list)
-
     # Ok, now figure out the routes for each one
     stop_times = gtfs_data["stop_times"] 
+
+    route_list = []
+
     for trip_id in stop_times:
         if trip_id not in trip_id_list:
             continue
         # Ok this is a trip we want
         new_route = [(stop["stop_id"], stop["arrival_time"]) for stop in stop_times[trip_id]]
         # Get the start time
+        route_list.append(new_route)
 
-        print(new_route)
-
-
-    return route_id
+    return new_route
