@@ -83,8 +83,6 @@ class Passenger(object):
         station_dict = self.network.station_dict
 
         stations = list(station_dict.keys())
-        # XXX XXX XXX XXX XXX Remove me!
-        # This filters out everything that's not an expo line. lame hack to make "simple mode work too
         stations = [x for x in stations if isinstance(x, int) or x.startswith("801")]
         weights = [station_dict[x].in_popularity for x in stations]
 

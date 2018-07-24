@@ -139,6 +139,24 @@ def build_stop_adj_matrix(stop_times):
 
     return stop_adj
 
+def connect_transfers(stop_info):
+    """ Loop through all the stuff and match all the stations with transfers"""
+   
+    matches = {}
+
+    for stop in stop_info:
+        for inner_stop in stop_info:
+            if (stop_info[stop]["tpis_name"] == stop_info[inner_stop]["tpis_name"] and
+                stop != inner_stop):
+
+                # GO ahead and add it to the list
+                if stop in matches:
+                    matches[stop].add(inner_stop)
+                else:
+                    matches[stop] = set([inner_stop])
+
+    return matches
+
 def load_gtfs_data(data_dir):
     """Does all the heavy lifting returns everything in a nice dict"""
     logging.info("Loading GTFS files...")
@@ -173,6 +191,9 @@ def load_gtfs_data(data_dir):
 
     logging.info("Building minimum adjacencey matrix...")
     adj_matrix = build_stop_adj_matrix(stop_times)
+    transfers = connect_transfers(stop_info)
+
+    print(transfers)
 
     # Stick it all in a dict for now
     gtfs_data = {}
@@ -184,6 +205,7 @@ def load_gtfs_data(data_dir):
     gtfs_data["stop_times"] = stop_times
     gtfs_data["calendar"] = calendar
     gtfs_data["adj_matrix"] = adj_matrix
+    gtfs_data["transfers"] = transfers
 
     return gtfs_data
 

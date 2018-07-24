@@ -1,5 +1,6 @@
 """ Plot -- make some handy plots """
 import csv
+import sys
 
 from collections import defaultdict
 
@@ -21,8 +22,10 @@ def plot_cdf(data_list):
     plt.show()
 
 
-def plot_traveler_time(trav_stat_file):
+def plot_traveler_time():
     """Plot some stuff about traveler time"""
+
+    trav_stat_file = sys.argv[1]
 
     mode_dict = defaultdict(list)
 

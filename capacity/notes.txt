@@ -169,3 +169,23 @@ to manage the parsing of that.
     Also going to only take routes from a single weekeday. Because it's
     relevant to my life route now, I'm going to say: 2 July 2018. As soon as
     route reading is working, we can make this generic, obviously.
+
+7/22 - Its running! Sort of!
+
+    Things are running!
+
+    MY current focus is to try and understanding what it's doing. Once I have
+    a sense of that, I can begin tweaking the models to try and generate more
+    realistic models.
+
+7/23 - Trnasfers
+
+    Transfers still not working -- errored out because the train graph is
+    disconnected. I added a system that abuses an undocumented field in the
+    stops gtfs file called tpis_name, which matches for stations that are
+    actually the same station. This adds a 0 weight connection between all such
+    stations.
+
+    Passengers still face the oddly realistic issue of having to decide if they
+    want to transfer or not. Still need to figure out a clever way to do full
+    path wayfinding instead of hop by hop decision making.

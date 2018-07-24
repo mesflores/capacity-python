@@ -79,6 +79,11 @@ class TransitNetwork(object):
                 weight = data["adj_matrix"][src][dst]
                 self.connect_station_pair(src, dst, weight)
 
+        # Connect the stations that are transfers with 0 weight
+        for src in data["transfers"]:
+            for dst in data["adj_matrix"][src]:
+               self.connect_station_pair(src, dst, 0)  
+
         # Build a set of routes from the included stop_times.txt
         logging.info("Adding trains...")
         for route in data["routes"]:
