@@ -179,15 +179,20 @@ class Train(object):
                     # If this was their destination, they arrived!
                     if rider.dest == self.location[0]:
                         rider.arrived()
+                        continue
                     # Otherwise, we need to transfer, possibly at a different station
                     transfer = rider.check_transfer()
                     
                     if transfer is not None:
                         # They should go there
-                        print(transfer)
+                        # Is it last stop?
+                        if self.rider.dest == transfer:
+                            rider.arrived()
+                            continue
                         transfer_station = self.network.station_dict[transfer]
+                        rider.route_index += 1
+                        # TODO: Edge cast, that was their destination
                         transfer_station.passenger_load.append(rider)
-                        raise NotImplementedError
                     else:
                         # They should stay here
                         curr_station.passenger_load.append(rider)

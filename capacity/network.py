@@ -141,7 +141,7 @@ class TransitNetwork(object):
     
     def is_transfer(self, src, dst):
         """ Is it a walkable transfer? """
-        delay = self.train_delay.generate_delay(src, dst)
+        delay = self._connect_graph.get_edge_data(src, dst)["weight"]
         if delay == 0:
             return True
         return False

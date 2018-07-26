@@ -41,11 +41,6 @@ class Station(object):
     def gen_load(self):
         """ Add incoming load"""
 
-        # XXX XXX XXX
-        if self.station_id != "80201":
-            return
-        # XXX XXX XXX
-
         while True:
             # Generate a new passenger
             new_pass = traveler.Passenger(self.station_id, self.network)
