@@ -81,7 +81,7 @@ class TransitNetwork(object):
 
         # Connect the stations that are transfers with 0 weight
         for src in data["transfers"]:
-            for dst in data["adj_matrix"][src]:
+            for dst in data["transfers"][src]:
                self.connect_station_pair(src, dst, 0)  
 
         # Build a set of routes from the included stop_times.txt
@@ -138,6 +138,14 @@ class TransitNetwork(object):
         delay = self.train_delay.generate_delay(src, dst)
         # Give us the edge weight, plus the measured delay
         return self._connect_graph.get_edge_data(src, dst)["weight"] + delay
+    
+    def is_transfer(self, src, dst):
+        """ Is it a walkable transfer? """
+        delay = self.train_delay.generate_delay(src, dst)
+        if delay == 0:
+            return True
+        return False
+        
 
     def add_station(self, station_id, name):
         """ Add a new station """

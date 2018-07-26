@@ -83,7 +83,8 @@ class Passenger(object):
         station_dict = self.network.station_dict
 
         stations = list(station_dict.keys())
-        stations = [x for x in stations if isinstance(x, int) or x.startswith("801")]
+        #stations = [x for x in stations if isinstance(x, int) or x.startswith("801")]
+        stations = [x for x in stations if isinstance(x, int) or x.startswith("80139")]
         weights = [station_dict[x].in_popularity for x in stations]
 
         # pick using the given weight distributions
@@ -97,6 +98,10 @@ class Passenger(object):
         self.route = self.network.determine_route(self.start, self.dest)
         # Set the index to where we are now
         self.route_index = 0
+
+    def get_curr_stop(self):
+        """Where am I?"""
+        return self.route[self.route_index]
 
     def get_next_stop(self):
         """ Where is next? """
@@ -112,3 +117,18 @@ class Passenger(object):
 
         # Write out the log
         self.state.write_log()
+
+    def check_transfer(self):
+        """ Check to see if we need to go to a different platform """
+        # How far away is the next stop?
+        # NOTE: For now transfers are 0 weight links, but maybe they should be
+        # explicit labels
+        curr_stop = self.get_curr_stop()
+        next_stop = self.get_next_stop()
+        if self.network.is_transfer(curr_stop, next_stop):
+            # Just move them to that stop
+            return next_stop
+
+        # Else we don't need to transfer, just wait here
+        return None
+

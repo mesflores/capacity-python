@@ -125,7 +125,15 @@ class Train(object):
         if rider.dest == self.location[0]:
             return True
 
-        # TODO: Implement transfers
+        # Do we need to transfer?
+        next_train_stop = self.get_next_stop()
+        if next_train_stop == None or next_train_stop[0] != rider.get_next_stop():
+            return True
+
+        # Ok if we here:
+        #  1) Not at destination
+        #  2) Next stop exists and is riders next
+        # Stay on the train!
         return False
 
     def run_line(self):
@@ -158,6 +166,7 @@ class Train(object):
                 # ARRIVE AT NEW STATION
                 ########## Alighting ###########################
                 # Figure out who should get off here
+                curr_station = self.network.station_dict[self.location[0]]
                 exiting = []
                 for rider in self.riders:
                     # Check if they should
@@ -167,7 +176,22 @@ class Train(object):
                 # Remove them all from the train
                 for rider in exiting:
                     self.riders.remove(rider)
-                    rider.arrived()
+                    # If this was their destination, they arrived!
+                    if rider.dest == self.location[0]:
+                        rider.arrived()
+                    # Otherwise, we need to transfer, possibly at a different station
+                    transfer = rider.check_transfer()
+                    
+                    if transfer is not None:
+                        # They should go there
+                        print(transfer)
+                        transfer_station = self.network.station_dict[transfer]
+                        transfer_station.passenger_load.append(rider)
+                        raise NotImplementedError
+                    else:
+                        # They should stay here
+                        curr_station.passenger_load.append(rider)
+                        
 
                 logging.info("[%d][%s] Train emptied %d at %s",
                              self.network.env.now,
@@ -236,6 +260,9 @@ class Train(object):
             # Update the locations accordingly
             prev_station = src
             self.location = dst
+            # Scoot everybody on the train along
+            for rider in self.riders:
+                rider.route_index += 1
 
             # Repeat...
 
