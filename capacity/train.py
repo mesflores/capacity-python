@@ -46,6 +46,7 @@ class Route(object):
         return self.stops[index + 1]
 
     def check_route(self, current):
+        """Check to see if we are at the final stop"""
         index = self.stops.index(current)
         if index == (len(self.stops) - 1):
             return False
@@ -127,7 +128,7 @@ class Train(object):
 
         # Do we need to transfer?
         next_train_stop = self.get_next_stop()
-        if next_train_stop == None or next_train_stop[0] != rider.get_next_stop():
+        if next_train_stop is None or next_train_stop[0] != rider.get_next_stop():
             return True
 
         # Ok if we here:
@@ -146,7 +147,7 @@ class Train(object):
 
         # Sleep it off until you are supposed to start
         yield self.network.env.timeout(schedule_pause)
-            
+
         # Just hardcode a start
         prev_station = (0, 0)
 
@@ -183,7 +184,7 @@ class Train(object):
                         continue
                     # Otherwise, we need to transfer, possibly at a different station
                     transfer = rider.check_transfer()
-                    
+
                     if transfer is not None:
                         # They should go there
                         # Is it last stop?
@@ -199,7 +200,6 @@ class Train(object):
                         curr_station.passenger_load.append(rider)
 
                 self.network.stats.log_alighting(self.location[0], len(exiting))
-                        
 
                 logging.info("[%d][%s] Train emptied %d at %s",
                              self.network.env.now,
@@ -212,7 +212,8 @@ class Train(object):
                 yield self.network.env.timeout(a_delay)
 
                 # Route control:
-                # NOTE: For the moment trains are entirely determined by the schedule -- at the end of your route, you just vanish
+                # NOTE: For the moment trains are entirely determined by the
+                # schedule -- at the end of your route, you just vanish
                 if not self.route.check_route(self.location):
                     # Just leave, it's over
                     return
@@ -300,5 +301,3 @@ class Breda_A650(Train):
 
         # super
         super().__init__(network, route, run)
-
-

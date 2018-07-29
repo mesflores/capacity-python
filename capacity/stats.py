@@ -76,14 +76,13 @@ class NetworkStats(object):
         with open(self.out_file, 'a') as out_f:
             # Dump the totals
             out_f.write("%d, %d, %d\n"%(time,
-                                    self.total_boardings,
-                                    self.total_alightings,))
+                                        self.total_boardings,
+                                        self.total_alightings,))
             # Dump each station
             for station in self.station_boardings:
                 # Did  wed get a filter?
                 if station_filter and station_filter not in str(station):
                     continue
                 out_f.write("\t%s\t\t%d\t%d\n"%(station,
-                                            self.station_boardings[station],
-                                            self.station_alightings[station]))
-
+                                                self.station_boardings[station],
+                                                self.station_alightings[station]))

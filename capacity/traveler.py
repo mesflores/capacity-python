@@ -131,4 +131,3 @@ class Passenger(object):
 
         # Else we don't need to transfer, just wait here
         return None
-

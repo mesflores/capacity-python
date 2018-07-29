@@ -141,13 +141,12 @@ def build_stop_adj_matrix(stop_times):
 
 def connect_transfers(stop_info):
     """ Loop through all the stuff and match all the stations with transfers"""
-   
     matches = {}
 
     for stop in stop_info:
         for inner_stop in stop_info:
             if (stop_info[stop]["tpis_name"] == stop_info[inner_stop]["tpis_name"] and
-                stop != inner_stop):
+                    stop != inner_stop):
 
                 # GO ahead and add it to the list
                 if stop in matches:
@@ -228,7 +227,7 @@ def generate_route(route_id, gtfs_data):
             service_id_list.append(service_id)
 
     # Ok we have the service IDs, let's get the trips they contain
-    # Loop through the trips and get all the trip IDs that match the route 
+    # Loop through the trips and get all the trip IDs that match the route
     trip_info = gtfs_data["trip_info"]
     for trip in trip_info:
         # Is it our route
@@ -243,7 +242,7 @@ def generate_route(route_id, gtfs_data):
         trip_id_list.append(trip_info[trip]["trip_id"])
 
     # Ok, now figure out the routes for each one
-    stop_times = gtfs_data["stop_times"] 
+    stop_times = gtfs_data["stop_times"]
 
     route_list = []
 
@@ -253,9 +252,9 @@ def generate_route(route_id, gtfs_data):
         # Ok this is a trip we want
         new_route = [(stop["stop_id"], stop["arrival_time"]) for stop in stop_times[trip_id]]
         # XXX XXX XXX
-        # For now, just map all the arrival times to today -- in the future this will have to be clever
+        # For now, just map all the arrival times to today
+        # in the future this will have to be clever
         new_route = [(x[0], map_to_date(x[1], "20180702")) for x in new_route]
-        
         # Get the start time
         route_list.append(new_route)
 
@@ -281,4 +280,3 @@ def map_to_date(s_time, date):
         s_time = "02:" + time_split[1] + ":" + time_split[2]
 
     return date + " " + s_time
-

@@ -45,8 +45,7 @@ def read_config_json(config_file):
 
     # If we got passed nothing, just return blank
     if config_file is None:
-        logging.warn("No config specified, using full default!")
-        # TODO: think this case might need to do more work
+        logging.warning("No config specified, using full default!")
         return {}
 
     logging.info("Loading configuration from %s", config_file)

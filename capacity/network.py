@@ -4,10 +4,8 @@ import errno
 import logging
 import os
 import uuid
-import sys
 
 import networkx as nx
-import numpy as np
 
 import capacity.gtfs_reader as gtfs_reader
 import capacity.station as station
@@ -82,7 +80,7 @@ class TransitNetwork(object):
         # Connect the stations that are transfers with 0 weight
         for src in data["transfers"]:
             for dst in data["transfers"][src]:
-               self.connect_station_pair(src, dst, 0)  
+                self.connect_station_pair(src, dst, 0)
 
         # Build a set of routes from the included stop_times.txt
         logging.info("Adding trains...")
@@ -92,7 +90,7 @@ class TransitNetwork(object):
             # Make a route for each one
             for stop_list in route_stop_list:
                 new_route = train.Route(stop_list)
-                # Add a train for that route too 
+                # Add a train for that route too
                 # TODO: For now, this assumes everything is a light rail
                 # Later we should sort out the rolling stock from the GTFS (+0ther data?)
                 self.add_train(new_route, train_type=train.KS_P3010)
@@ -138,14 +136,13 @@ class TransitNetwork(object):
         delay = self.train_delay.generate_delay(src, dst)
         # Give us the edge weight, plus the measured delay
         return self._connect_graph.get_edge_data(src, dst)["weight"] + delay
-    
+
     def is_transfer(self, src, dst):
         """ Is it a walkable transfer? """
         delay = self._connect_graph.get_edge_data(src, dst)["weight"]
         if delay == 0:
             return True
         return False
-        
 
     def add_station(self, station_id, name):
         """ Add a new station """
