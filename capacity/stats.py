@@ -11,6 +11,9 @@ class NetworkStats(object):
         self.total_boardings = 0
         self.station_boardings = {}
 
+        self.total_alightings = 0
+        self.station_alightings = {}
+
         # Place we dump everything
         self.out_file = None
 
@@ -27,12 +30,15 @@ class NetworkStats(object):
     def add_station(self, station):
         """ Add a station to the station list """
         self.station_boardings[station] = 0
+        self.station_alightings[station] = 0
 
     def reset_all(self, time):
         """ Reset all counters to 0 """
         self.total_boardings = 0
+        self.total_alightings = 0
         for station in self.station_boardings:
             self.station_boardings[station] = 0
+            self.station_alightings[station] = 0
 
         # Set the timer to now
         self.last_reset = time
@@ -43,6 +49,13 @@ class NetworkStats(object):
         self.total_boardings += boarding
         # Add this station
         self.station_boardings[station] += boarding
+
+    def log_alighting(self, station, alighting):
+        """ Record how many passengers alighted"""
+        # Add to the total
+        self.total_alightings += alighting
+        # Add this station
+        self.station_alightings[station] += alighting
 
     def periodic_output(self, env, interval=3600, station_filter=None):
         """ loop to handle regular stat output """
@@ -62,12 +75,15 @@ class NetworkStats(object):
 
         with open(self.out_file, 'a') as out_f:
             # Dump the totals
-            out_f.write("%d, %d\n"%(time,
-                                    self.total_boardings))
+            out_f.write("%d, %d, %d\n"%(time,
+                                    self.total_boardings,
+                                    self.total_alightings,))
             # Dump each station
             for station in self.station_boardings:
                 # Did  wed get a filter?
                 if station_filter and station_filter not in str(station):
                     continue
-                out_f.write("\t%s\t\t%d\n"%(station,
-                                            self.station_boardings[station]))
+                out_f.write("\t%s\t\t%d\t%d\n"%(station,
+                                            self.station_boardings[station],
+                                            self.station_alightings[station]))
+

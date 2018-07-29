@@ -189,3 +189,24 @@ to manage the parsing of that.
     Passengers still face the oddly realistic issue of having to decide if they
     want to transfer or not. Still need to figure out a clever way to do full
     path wayfinding instead of hop by hop decision making.
+
+7/29 - Transfers again
+
+    Transfers are now a little more complicated. When a rider is generated,
+    they find the shortest path to their destination. Then they board any train
+    that will take them to their next stop on that path. If they are on a train
+    and the next stop is not on their path they get off. Immediately after
+    getting off, they check to see if they need to transfer to another platform
+    (indicated by the next hop being 0 weight). If so, they do that immediately
+    and are added to that stations queue.
+
+    This is a bit hacky, as it's abusing the meaning of the weights to extract
+    information. Ideally this should be an explicit tag on the links (that way
+    they can still have a time cost, for example if they take forever to do.
+
+    This is further complicated by the fact that in the Los Angeles GTFS
+    inside-the-gate connected transfers (there is only 7mc really, though Union
+    is close enough) are entered as separate stop IDs. We then abuse an
+    undocumented field called "tpis_name". In most cities, I think the
+    transfers.txt will contain enough information to determine the transfer
+    layout.

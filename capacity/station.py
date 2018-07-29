@@ -51,8 +51,7 @@ class Station(object):
                 self.passenger_load.append(new_pass)
 
             # Generate load based on poisson arrivals
-            #TODO: I dunno pick a better one
-            gap = int(utils.poisson_arrival(self.in_popularity))
+            gap = int(utils.poisson_arrival(self.out_popularity))
             yield self.network.env.timeout(gap)
 
     def set_pos(self, pos):

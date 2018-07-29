@@ -175,6 +175,7 @@ class Train(object):
 
                 # Remove them all from the train
                 for rider in exiting:
+                    # Well whatever happens, they got off the train here
                     self.riders.remove(rider)
                     # If this was their destination, they arrived!
                     if rider.dest == self.location[0]:
@@ -186,7 +187,7 @@ class Train(object):
                     if transfer is not None:
                         # They should go there
                         # Is it last stop?
-                        if self.rider.dest == transfer:
+                        if rider.dest == transfer:
                             rider.arrived()
                             continue
                         transfer_station = self.network.station_dict[transfer]
@@ -196,6 +197,8 @@ class Train(object):
                     else:
                         # They should stay here
                         curr_station.passenger_load.append(rider)
+
+                self.network.stats.log_alighting(self.location[0], len(exiting))
                         
 
                 logging.info("[%d][%s] Train emptied %d at %s",
