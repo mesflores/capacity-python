@@ -10,9 +10,12 @@ setup(name='capacity',
         "networkx",
         "simpy",
         "matplotlib",
+        "feedparser",
+        "requests",
       ],
       entry_points = {
                       'console_scripts': ['capacity=capacity.main:main',
-                                          'plot=capacity.plot:plot_traveler_time',],
+                                          'plot=capacity.plot:plot_traveler_time',
+                                          'update_gtfs=capacity.gtfs_fetch:update_gtfs'],
                      },
       )

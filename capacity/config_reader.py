@@ -63,6 +63,7 @@ def read_config_json(config_file):
 
     # Grab the main outdir
     const_dict["run_dir"] = config_json["run_dir"]
+    const_dict["gtfs_dir"] = config_json["gtfs_dir"]
     # Build dict of file names using defaults or overrides
     const_dict["files"] = build_path_dict(const_dict["run_dir"],
                                           config_json)

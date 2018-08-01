@@ -45,9 +45,8 @@ def simple_system(config_dict):
 
     return (env, system)
 
-def load_gtfs(config_dict, gtfs_dir):
+def load_gtfs(config_dict):
     """ Create a network from GTFS data """
-
     # Let's do some quick start time math
     start_date = datetime.datetime.strptime(config_dict["start_time"], "%Y%m%d")
     start_sec = start_date.timestamp()    
@@ -59,7 +58,7 @@ def load_gtfs(config_dict, gtfs_dir):
     system = network.TransitNetwork(env, config_dict)
 
     # Call the GTFS func
-    system.read_gtfs(gtfs_dir)
+    system.read_gtfs(config_dict["gtfs_dir"])
 
     return (env, system, start_sec)
 
@@ -79,8 +78,6 @@ def main():
     # Run the simple test, or use GTFS data?
     parser.add_argument("--simple", action="store_true",
                         help="Run the simple example")
-    parser.add_argument("--load_gtfs", action="store", type=str,
-                        help="Run a system built from gtfs files")
     # Some parameters for the run
     parser.add_argument("--until", action="store", type=int,
                         default="100",
@@ -116,11 +113,8 @@ def main():
     if args.simple:
         env, system = simple_system(config_dict)
         start = 0
-    elif args.load_gtfs:
-        env, system, start = load_gtfs(config_dict, args.load_gtfs)
     else:
-        print("Run type required!")
-        sys.exit(-1)
+        env, system, start = load_gtfs(config_dict)
 
     # Now actually run it
     run_system(env, system, until=(args.until+start))
