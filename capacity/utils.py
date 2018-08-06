@@ -3,8 +3,7 @@
 import math
 import os
 import os.path
-
-import numpy as np
+import time
 
 def reset_stats(file_path):
     """ Do some file cleanup"""
@@ -32,6 +31,19 @@ def map_to_cartesian(lat, lon):
 
     return (x_coord, y_coord)
 
-def poisson_arrival(scale):
-    """ Pull from exp to see next arrival time """
-    return np.random.exponential(scale=scale)
+
+def convert_to_local(curr_time):
+    """ Take a time stamp input and convert to seconds since midnight """
+
+    midnight = list(time.localtime(curr_time))
+    # Set hour, minute, sec to 0
+    midnight[3] = 0
+    midnight[4] = 0
+    midnight[5] = 0
+    
+    midnight_sec = time.mktime(time.struct_time(midnight))
+
+    return curr_time - midnight_sec
+    
+
+

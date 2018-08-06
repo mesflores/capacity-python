@@ -1,5 +1,6 @@
 {
     "run_dir": "/tank/out/",
+    "gtfs_dir": "../la_metro_data",
     "files": {
         "traveler_stat_file": "traveler.log"
     },
@@ -7,18 +8,23 @@
     "models": {
         "boarding_delay": {
             "constant": {
-                "value": 1.0
+                "value": 0.0
             }
         },
         "alighting_delay": {
             "constant": {
-                "value": 1.0
+                "value": 0.0
             }
         },
         "train_delay": { 
             "normal": {
                 "location": 0.0,
                 "scale": 3.0
+            }
+        },
+        "rider_gen": {
+            "poisson_step": {
+                "magnitude": 10.5
             }
         }
     }

@@ -4,6 +4,7 @@ import collections
 import csv
 import logging
 import random
+import time
 
 class PassengerState(object):
     """A state machine to keep track of passenger experience"""
@@ -73,8 +74,9 @@ class Passenger(object):
         self.state = PassengerState(self.network.env.now, self.start, self.dest,
                                     self.network.config["files"]["traveler_stat_file"])
 
-        logging.info("[%d] person at %s going to %s",
-                     network.env.now, self.start, self.dest)
+        logging.info("[%s] person at %s going to %s",
+                     time.strftime("%H:%M:%S", time.localtime(network.env.now)), 
+                     self.start, self.dest)
 
     def _select_destination(self):
         """Determine where the passenget should go """

@@ -11,6 +11,7 @@ def tod_weight(current_tod, popularity):
 
     magnitude = 1.5
 
+
     # If < 5 AM potentially wait a while
     if current_tod < 18000:
         rate = 1000
@@ -71,6 +72,9 @@ class Station(object):
         # Placeholder position
         self.pos = None
 
+        # Load generation delay function
+        self.load_interval = network.config["rider_gen"]()
+
         # Go ahead and start their action proccesses
         self.gen_load_action = self.network.env.process(self.gen_load())
 
@@ -87,7 +91,8 @@ class Station(object):
                 self.passenger_load.append(new_pass)
 
             # Generate load based on poisson arrivals
-            gap = int(utils.poisson_arrival(tod_weight(self.network.env.now, self.out_popularity)))
+            tod = utils.convert_to_local(self.network.env.now)
+            gap = self.load_interval.generate_delay(tod, self.out_popularity)
             yield self.network.env.timeout(gap)
 
     def set_pos(self, pos):
