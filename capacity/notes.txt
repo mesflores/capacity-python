@@ -210,3 +210,21 @@ to manage the parsing of that.
     undocumented field called "tpis_name". In most cities, I think the
     transfers.txt will contain enough information to determine the transfer
     layout.
+
+8/28 - Generic Scheduling.
+
+    Currently, everything is still hardcoded for July Second. It should look at
+    the GTFS and just run through whatever it has valid schedules for.
+
+    Thought: in order to avoid having to generate all the trains at the start,
+    what about going day by day -- simulating all the trains for a day, then
+    proceeding to the next set. Doing so would make it easy to avoid loading it
+    all at once, but would make it hard to simulate a continuous system (vs the
+    non-24 hour service in the LA system. 
+
+    Ok, to start let's just generate it all at once. If it's too much, we'll revisit.
+
+    So the question then becomes: if I select a day, find all the appropriate
+    ID's, then generate all the routes, then do the next day, appending the
+    lists together, will I end up with an accurate and valid list? Is there
+    anything inherent with how the system manages roll-overs at midnight?

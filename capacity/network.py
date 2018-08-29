@@ -87,6 +87,7 @@ class TransitNetwork(object):
         for route in data["routes"]:
             # get a list of all the runs in a day
             route_stop_list = gtfs_reader.generate_route(route, data)
+            logging.info("Geneerating train for %d routes...", len(route_stop_list))
             # Make a route for each one
             for stop_list in route_stop_list:
                 new_route = train.Route(stop_list)
