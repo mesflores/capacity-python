@@ -17,6 +17,7 @@ def read_gtfs_files(data_dir):
         "trips",
         "stop_times",
         "calendar",
+        "calendar_dates",
         # There are others but not required. Someday.
     ]
 
@@ -186,6 +187,9 @@ def load_gtfs_data(data_dir):
     logging.info("Parsing Calendar...")
     calendar = parse_gtfs_file(raw_data["calendar"], "service_id")
 
+    logging.info("Parsing Calendar Dates...")
+    calendar_dates = parse_gtfs_file(raw_data["calendar_dates"], "service_id")
+
     #print(json.dumps(stop_times, indent=4))
 
     logging.info("Building minimum adjacencey matrix...")
@@ -203,29 +207,88 @@ def load_gtfs_data(data_dir):
     gtfs_data["trip_info"] = trip_info
     gtfs_data["stop_times"] = stop_times
     gtfs_data["calendar"] = calendar
+    gtfs_data["calendar_dates"] = calendar_dates
     gtfs_data["adj_matrix"] = adj_matrix
     gtfs_data["transfers"] = transfers
 
     return gtfs_data
 
+def extract_dates(cal_row):
+    """ Given a row from calendar.txt, figure out the corresponding dates """
+
+    day_seq = ["monday", "tuesday", "wednesday", "thursday", "friday",
+               "saturday", "sunday"]
+
+    curr_date = datetime.datetime.strptime(cal_row["start_date"], "%Y%m%d")
+    service_end = datetime.datetime.strptime(cal_row["end_date"], "%Y%m%d")
+
+    # Convert the days to just a list
+    seq_list = [cal_row[x] for x in day_seq]
+
+    # start the index as none so we know if we should be incrementing the date
+    index = 0
+    start = False
+
+    date_list = []
+
+    # Until we get to the end
+    while (curr_date <= service_end):
+        # Is there service on this day?
+        # yes!
+        if seq_list[index] == "1":
+            date_list.append(curr_date.strftime("%Y%m%d"))
+            start = True # We are getting stuff
+
+
+        # Bumb it along
+        index = (index + 1) % 7
+        # If we started the counter, go ahead and bump it 
+        # Otherwise we spin through indices only
+        if start:
+            curr_date = curr_date + datetime.timedelta(days=1)
+                    
+    return date_list
+
 def generate_route(route_id, gtfs_data):
     """For a given route, spin through stop times and build longest version """
 
+    # The master dict of days
+    service_days = {}
+
+    # Loop through each service ID
+    for service_id in gtfs_data["calendar"]:
+        dates = extract_dates(gtfs_data["calendar"][service_id])
+        # add the approproiate service IDs
+        for date in dates:
+            if date in service_days:
+                service_days[date].append(service_id)
+            else:
+                service_days[date] = [service_id,]
+
+    # Ok, now let's go through the exceptions
+    for service_id in gtfs_data["calendar_dates"]:
+        e_type = gtfs_data["calendar_dates"][service_id]["exception_type"]
+        date = gtfs_data["calendar_dates"][service_id]["date"]
+
+        if e_type == "1":
+            service_days[date].append(service_id)
+        elif e_type == "2":
+            try:
+                service_days[date].remove(service_id)
+            except ValueError:
+                logging.warn("Service %s wasn't scheduled for %s but was excepted!",
+                             service_id, date) 
+            
+    
+    for service_id in service_days:
+        print(service_id, service_days[service_id])
+
+    sys.exit(0)
+         
     trip_id_list = []
 
-    target_date = datetime.datetime.strptime("20180702", "%Y%m%d")
-
-    # First, open up the calendar and get all service IDs relevant to the time frame.
-    # XXX Remove this restriction later! XXX
-    service_id_list = []
-    for service_id in gtfs_data["calendar"]:
-        service = gtfs_data["calendar"][service_id]
-        service_start = datetime.datetime.strptime(service["start_date"], "%Y%m%d")
-        service_end = datetime.datetime.strptime(service["end_date"], "%Y%m%d")
-
-        if target_date >= service_start and target_date <= service_end:
-            service_id_list.append(service_id)
-
+    # XXX XXX XXX XXX XXX XXX XXX
+    
     # Ok we have the service IDs, let's get the trips they contain
     # Loop through the trips and get all the trip IDs that match the route
     trip_info = gtfs_data["trip_info"]

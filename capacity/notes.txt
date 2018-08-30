@@ -228,3 +228,11 @@ to manage the parsing of that.
     ID's, then generate all the routes, then do the next day, appending the
     lists together, will I end up with an accurate and valid list? Is there
     anything inherent with how the system manages roll-overs at midnight?
+
+8/29 - Generic Scheduling More
+
+    Need to figure out which days are described and which service IDs are in
+    effect for each day. Current plan:
+
+        Read the calendar.txt, build a dict keyed by days, where each value is
+        the ids active for that day.
