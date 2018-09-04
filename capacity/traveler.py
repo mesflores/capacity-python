@@ -8,7 +8,7 @@ import time
 
 class PassengerState(object):
     """A state machine to keep track of passenger experience"""
-    def __init__(self, time, start, dest, trav_stat_file):
+    def __init__(self, timestamp, start, dest, trav_stat_file):
         # States
         # waiting - waiting for a vehicle at a stop
         # riding - on a moving vehicle
@@ -20,7 +20,7 @@ class PassengerState(object):
 
         self.state = "waiting"
         self.time_record = collections.defaultdict(list)
-        self.time = time
+        self.time = timestamp
 
         self.trav_stat_file = trav_stat_file
 
@@ -75,7 +75,7 @@ class Passenger(object):
                                     self.network.config["files"]["traveler_stat_file"])
 
         logging.info("[%s] person at %s going to %s",
-                     time.strftime("%H:%M:%S", time.localtime(network.env.now)), 
+                     time.strftime("%H:%M:%S", time.localtime(network.env.now)),
                      self.start, self.dest)
 
     def _select_destination(self):

@@ -5,43 +5,6 @@ import simpy
 import capacity.traveler as traveler
 import capacity.utils as utils
 
-def tod_weight(current_tod, popularity):
-    """ Determine the scale factor based on TOD"""
-    # let's start with some stupid hard rules 
-
-    magnitude = 1.5
-
-
-    # If < 5 AM potentially wait a while
-    if current_tod < 18000:
-        rate = 1000
-        # Ok if its early in the morning, fixed popularity, doesn't matter where you are
-        return rate
-    # If morning rush, small weight, ends 10Am
-    elif current_tod < 40000:
-        # let's try and smooth this out a little bit
-        rate = magnitude * 1
-    # Midday, quiet down
-    elif current_tod < 61200:
-        rate = magnitude * 2
-    # Evening rush
-    elif current_tod < 68400:
-        rate = magnitude * 1
-    elif current_tod < 86400:
-        # Taper off to 100
-        dropoff = (magnitude * 10)*((float(current_tod)- 68400)/(86400-68500))
-        rate = (magnitude * 1) + dropoff
-    else:
-        rate = 0
-
-    # Ok now we need to weight the value
-    if popularity == 0:
-        pop = .001 # epsilon?
-    else:
-        pop = popularity
-   
-    return float(rate)/pop
-
 class Station(object):
     """basic Station object """
     def __init__(self, station_id, name, network):

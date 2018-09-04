@@ -40,10 +40,7 @@ def convert_to_local(curr_time):
     midnight[3] = 0
     midnight[4] = 0
     midnight[5] = 0
-    
+
     midnight_sec = time.mktime(time.struct_time(midnight))
 
     return curr_time - midnight_sec
-    
-
-

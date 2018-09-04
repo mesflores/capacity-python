@@ -13,13 +13,13 @@ def min_date(data_dir):
         reader = csv.reader(cal_file)
         for line in reader:
             # TODO: this is bad it should use the columns and find start date etc etc etc
-            start = line[8]  
+            start = line[8]
             if start == "start_date":
                 continue
             date.append(int(start))
 
     return str(min(date))
-    
+
 def read_gtfs_files(data_dir):
     """ Read all the files and load them into python dict raw"""
     gtfs_info = {}
@@ -243,7 +243,7 @@ def extract_dates(cal_row):
     date_list = []
 
     # Until we get to the end
-    while (curr_date <= service_end):
+    while curr_date <= service_end:
         # Is there service on this day?
         # yes!
         if seq_list[index] == "1":
@@ -253,11 +253,11 @@ def extract_dates(cal_row):
 
         # Bumb it along
         index = (index + 1) % 7
-        # If we started the counter, go ahead and bump it 
+        # If we started the counter, go ahead and bump it
         # Otherwise we spin through indices only
         if start:
             curr_date = curr_date + datetime.timedelta(days=1)
-                    
+
     return date_list
 
 def generate_route(route_id, gtfs_data):
@@ -287,8 +287,8 @@ def generate_route(route_id, gtfs_data):
             try:
                 service_days[date].remove(service_id)
             except ValueError:
-                logging.warn("Service %s wasn't scheduled for %s but was excepted!",
-                             service_id, date) 
+                logging.warning("Service %s wasn't scheduled for %s but was excepted!",
+                                service_id, date)
 
     # Ok so now we know for each day what service IDs are in effect. So now,
     # we'll spin over the days. For each day, we'll figure out which trips
@@ -354,7 +354,5 @@ def map_to_date(s_time, date):
     elif int(time_split[0]) == 27:
         date = (old_date + datetime.timedelta(days=1)).strftime("%Y%m%d")
         s_time = "03:" + time_split[1] + ":" + time_split[2]
-
-    
 
     return date + " " + s_time

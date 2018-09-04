@@ -15,7 +15,7 @@ class rider_gen(object):
     def generate_delay(self, current_tod, popularity):
         """ Generate the delay"""
 
-        return  int(poisson_arrival(self.tod_weight(current_tod, 
+        return  int(poisson_arrival(self.tod_weight(current_tod,
                                                     popularity)))
 
     def tod_weight(self, current_tod, popularity):
@@ -48,7 +48,7 @@ class rider_gen(object):
             pop = .001 # epsilon?
         else:
             pop = popularity
-   
+
         return float(rate)/pop
 
 def instantiate(parameters):

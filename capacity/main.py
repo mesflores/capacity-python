@@ -51,7 +51,7 @@ def load_gtfs(config_dict):
     # Let's do some quick start time math
     earliest_date = gtfs_reader.min_date(config_dict["gtfs_dir"])
     start_date = datetime.datetime.strptime(earliest_date, "%Y%m%d")
-    start_sec = start_date.timestamp()    
+    start_sec = start_date.timestamp()
 
     # Make the simpy
     env = simpy.Environment(start_sec)
