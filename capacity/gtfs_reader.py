@@ -5,6 +5,21 @@ import datetime
 import logging
 import os.path
 
+def min_date(data_dir):
+    """ Peak into calendar.txt and pick the minumum date """
+    calendar = os.path.join(data_dir, "calendar.txt")
+    date = []
+    with open(calendar, 'r') as cal_file:
+        reader = csv.reader(cal_file)
+        for line in reader:
+            # TODO: this is bad it should use the columns and find start date etc etc etc
+            start = line[8]  
+            if start == "start_date":
+                continue
+            date.append(int(start))
+
+    return str(min(date))
+    
 def read_gtfs_files(data_dir):
     """ Read all the files and load them into python dict raw"""
     gtfs_info = {}
@@ -190,13 +205,9 @@ def load_gtfs_data(data_dir):
     logging.info("Parsing Calendar Dates...")
     calendar_dates = parse_gtfs_file(raw_data["calendar_dates"], "service_id")
 
-    #print(json.dumps(stop_times, indent=4))
-
     logging.info("Building minimum adjacencey matrix...")
     adj_matrix = build_stop_adj_matrix(stop_times)
     transfers = connect_transfers(stop_info)
-
-    print(transfers)
 
     # Stick it all in a dict for now
     gtfs_data = {}
@@ -278,48 +289,46 @@ def generate_route(route_id, gtfs_data):
             except ValueError:
                 logging.warn("Service %s wasn't scheduled for %s but was excepted!",
                              service_id, date) 
-            
-    
-    for service_id in service_days:
-        print(service_id, service_days[service_id])
 
-    sys.exit(0)
-         
-    trip_id_list = []
-
-    # XXX XXX XXX XXX XXX XXX XXX
-    
-    # Ok we have the service IDs, let's get the trips they contain
-    # Loop through the trips and get all the trip IDs that match the route
-    trip_info = gtfs_data["trip_info"]
-    for trip in trip_info:
-        # Is it our route
-        if trip_info[trip]["route_id"] != route_id:
-            continue
-
-        # Is it one of our service IDs?
-        if trip_info[trip]["service_id"] not in service_id_list:
-            continue
-
-        # Ok so let's grab that
-        trip_id_list.append(trip_info[trip]["trip_id"])
-
-    # Ok, now figure out the routes for each one
-    stop_times = gtfs_data["stop_times"]
-
+    # Ok so now we know for each day what service IDs are in effect. So now,
+    # we'll spin over the days. For each day, we'll figure out which trips
+    # correspond to those service IDs, then we'll actually dig out the specific
+    # stop times (mapped to the corresponding day).
     route_list = []
+    for day in service_days:
+        trip_id_list = []
 
-    for trip_id in stop_times:
-        if trip_id not in trip_id_list:
-            continue
-        # Ok this is a trip we want
-        new_route = [(stop["stop_id"], stop["arrival_time"]) for stop in stop_times[trip_id]]
-        # XXX XXX XXX
-        # For now, just map all the arrival times to today
-        # in the future this will have to be clever
-        new_route = [(x[0], map_to_date(x[1], "20180702")) for x in new_route]
-        # Get the start time
-        route_list.append(new_route)
+        # Ok we have the service IDs, let's get the trips they contain
+        # Loop through the trips and get all the trip IDs that match the route
+        trip_info = gtfs_data["trip_info"]
+        for trip in trip_info:
+            # Is it our route
+            if trip_info[trip]["route_id"] != route_id:
+                continue
+
+            # Is it one of our service IDs?
+            if trip_info[trip]["service_id"] not in service_days[day]:
+                continue
+
+            # Ok so let's grab that
+            trip_id_list.append(trip_info[trip]["trip_id"])
+
+        # Ok, now figure out the routes for each one
+        stop_times = gtfs_data["stop_times"]
+
+
+        for trip_id in stop_times:
+            if trip_id not in trip_id_list:
+                continue
+            # Ok this is a trip we want
+            new_route = [(stop["stop_id"], stop["arrival_time"]) for stop in stop_times[trip_id]]
+            # For kind of weird reasons related to midnight overlap you need to
+            # tell it the date. Actually this works out well for doing multiple
+            # dates at once
+            new_route = [(x[0], map_to_date(x[1], day)) for x in new_route]
+
+            # Add it to the big master list
+            route_list.append(new_route)
 
     return route_list
 
@@ -332,14 +341,20 @@ def map_to_date(s_time, date):
     # datetimes dont like that.
     time_split = s_time.split(":")
     # If its more than 24, add one to the date
+    old_date = datetime.datetime.strptime(date, "%Y%m%d")
     if int(time_split[0]) == 24:
-        date = str(int(date) + 1)
+        date = (old_date + datetime.timedelta(days=1)).strftime("%Y%m%d")
         s_time = "00:" + time_split[1] + ":" + time_split[2]
     elif int(time_split[0]) == 25:
-        date = str(int(date) + 1)
+        date = (old_date + datetime.timedelta(days=1)).strftime("%Y%m%d")
         s_time = "01:" + time_split[1] + ":" + time_split[2]
     elif int(time_split[0]) == 26:
-        date = str(int(date) + 1)
+        date = (old_date + datetime.timedelta(days=1)).strftime("%Y%m%d")
         s_time = "02:" + time_split[1] + ":" + time_split[2]
+    elif int(time_split[0]) == 27:
+        date = (old_date + datetime.timedelta(days=1)).strftime("%Y%m%d")
+        s_time = "03:" + time_split[1] + ":" + time_split[2]
+
+    
 
     return date + " " + s_time

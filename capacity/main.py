@@ -10,6 +10,7 @@ import simpy
 from matplotlib import pyplot as plt
 
 import capacity.config_reader as config_reader
+import capacity.gtfs_reader as gtfs_reader
 import capacity.network as network
 import capacity.train as train
 
@@ -48,7 +49,8 @@ def simple_system(config_dict):
 def load_gtfs(config_dict):
     """ Create a network from GTFS data """
     # Let's do some quick start time math
-    start_date = datetime.datetime.strptime(config_dict["start_time"], "%Y%m%d")
+    earliest_date = gtfs_reader.min_date(config_dict["gtfs_dir"])
+    start_date = datetime.datetime.strptime(earliest_date, "%Y%m%d")
     start_sec = start_date.timestamp()    
 
     # Make the simpy
