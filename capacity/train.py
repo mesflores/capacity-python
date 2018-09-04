@@ -1,6 +1,7 @@
 """Train object """
 import datetime
 import logging
+import time
 
 import numpy as np
 
@@ -201,8 +202,8 @@ class Train(object):
 
                 self.network.stats.log_alighting(self.location[0], len(exiting))
 
-                logging.info("[%d][%s] Train emptied %d at %s",
-                             self.network.env.now,
+                logging.info("[%s][%s] Train emptied %d at %s",
+                             time.strftime("%H:%M:%S", time.localtime(self.network.env.now)),
                              self.run,
                              len(exiting),
                              self.network.get_name(self.location[0]))
@@ -231,8 +232,8 @@ class Train(object):
                         room = self.capacity - len(self.riders)
                         # The train is full
                         if room == 0:
-                            logging.info("[%d][%s] Train full at %s",
-                                         self.network.env.now,
+                            logging.info("[%s][%s] Train full at %s",
+                                         time.strftime("%H:%M:%S", time.localtime(self.network.env.now)),
                                          self.run,
                                          self.location[0])
                             break
@@ -247,8 +248,8 @@ class Train(object):
                 # Log increases
                 self.network.stats.log_boarding(self.location[0], len(boarding))
 
-                logging.info("[%d][%s] Train boarded %d at %s",
-                             self.network.env.now,
+                logging.info("[%s][%s] Train boarded %d at %s",
+                             time.strftime("%H:%M:%S", time.localtime(self.network.env.now)),
                              self.run,
                              len(boarding), self.network.get_name(self.location[0]))
 
