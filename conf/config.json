@@ -1,6 +1,6 @@
 {
     "run_dir": "/tank/out/",
-    "gtfs_dir": "../la_metro_data",
+    "gtfs_dir": "gtfs_data",
     "files": {
         "traveler_stat_file": "traveler.log"
     },

@@ -46,7 +46,7 @@ def get_data(log_dir):
         zip_file.write(resp.content)
 
     # Go in there and unzip it!
-    subprocess.Popen(shlex.split("unzip gtfs_data.zip"), cwd=log_dir)
+    subprocess.Popen(shlex.split("unzip -o gtfs_data.zip"), cwd=log_dir)
 
     # Update the file
     current = get_last_commit()
