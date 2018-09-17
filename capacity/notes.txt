@@ -236,3 +236,8 @@ to manage the parsing of that.
 
         Read the calendar.txt, build a dict keyed by days, where each value is
         the ids active for that day.
+
+9/11 - Scheduling
+
+    Needs to auto determine end data and run unil then, eliminate the need for
+    manual "unti" (though it should still accept it!).

@@ -229,13 +229,13 @@ class Train(object):
                     # SHould they get on this train?
                     if self.should_board(passenger):
                         # Is there room?
-                        room = self.capacity - len(self.riders)
+                        room = self.capacity - (len(self.riders) + len(boarding))
                         # The train is full
                         if room == 0:
                             logging.info("[%s][%s] Train full at %s",
                                          time.strftime("%a %d %H:%M:%S", time.localtime(self.network.env.now)),
                                          self.run,
-                                         self.location[0])
+                                         self.network.get_name(self.location[0]))
                             break
                         # Get on the train
                         boarding.append(passenger)
@@ -290,6 +290,7 @@ class KS_P3010(Train):
     def __init__(self, network, route, run, cars):
         # Set the capacity accordingly
         self.capacity = 68 * cars #NOTE: Assume 3 cars for now
+
 
         # super
         super().__init__(network, route, run)
