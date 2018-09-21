@@ -14,38 +14,6 @@ import capacity.gtfs_reader as gtfs_reader
 import capacity.network as network
 import capacity.train as train
 
-def simple_system(config_dict):
-    """ Create a simple system for debugging """
-    # Make the simpy env
-    env = simpy.Environment()
-
-    # Create the the network object
-    system = network.TransitNetwork(env, config_dict)
-    # Add two stations
-    system.add_station(1, "A")
-    system.add_station(2, "B")
-    system.add_station(3, "C")
-    system.add_station(4, "D")
-
-    # Connect them
-    system.connect_station_pair(1, 2, 5)
-    system.connect_station_pair(2, 1, 5)
-    system.connect_station_pair(2, 3, 3)
-    system.connect_station_pair(3, 2, 3)
-    system.connect_station_pair(3, 4, 4)
-    system.connect_station_pair(4, 3, 4)
-
-    #Make a route
-    route = train.Route(1, 4, [1, 2, 3, 4])
-    route_2 = train.Route(4, 1, [4, 3, 2, 1])
-
-    # Make a train
-    system.add_train(1, route) #Starts at station 1
-    # Make 2 trains!
-    system.add_train(4, route_2) #Starts at station 4
-
-    return (env, system)
-
 def load_gtfs(config_dict):
     """ Create a network from GTFS data """
     # Let's do some quick start time math
@@ -77,9 +45,6 @@ def main():
     """ main func"""
     parser = argparse.ArgumentParser(description="A transit simulator, I guess")
 
-    # Run the simple test, or use GTFS data?
-    parser.add_argument("--simple", action="store_true",
-                        help="Run the simple example")
     # Some parameters for the run
     parser.add_argument("--until", action="store", type=int,
                         default="100",
@@ -111,12 +76,7 @@ def main():
     logging.info("Loading model constructors...")
     config_dict = config_reader.read_config_json(args.config_json)
 
-    # Run the simple thing
-    if args.simple:
-        env, system = simple_system(config_dict)
-        start = 0
-    else:
-        env, system, start = load_gtfs(config_dict)
+    env, system, start = load_gtfs(config_dict)
 
     # Now actually run it
     run_system(env, system, until=(args.until+start))

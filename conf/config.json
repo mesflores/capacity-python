@@ -1,10 +1,9 @@
 {
-    "run_dir": "/tank/out/",
+    "run_dir": "/tank/out/20_09_2018",
     "gtfs_dir": "gtfs_data",
     "files": {
         "traveler_stat_file": "traveler.log"
     },
-    "start_time": "20180702",
     "models": {
         "boarding_delay": {
             "constant": {

@@ -67,9 +67,6 @@ def read_config_json(config_file):
     # Build dict of file names using defaults or overrides
     const_dict["files"] = build_path_dict(const_dict["run_dir"],
                                           config_json)
-    # If there is a start time, grab that
-    if "start_time" in config_json:
-        const_dict["start_time"] = config_json["start_time"]
 
     for model in config_json["models"]:
         # Only one name per model
