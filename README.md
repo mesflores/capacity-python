@@ -2,7 +2,7 @@
 
 Basically this is the output of me being curious about what I could do with
 SimPy, Networkx, and the Los Angeles Metro Rail GTFS data (though this should
-be *relatively* generic.
+be *relatively* generic).
 
 ## Display
 
@@ -13,4 +13,4 @@ i.e. station names and locations, connections between the stations, etc. The LA 
 
 ## Simulation
 
-Not sure about this part yet.
+Read the GTFS schedules and output the stuff!
